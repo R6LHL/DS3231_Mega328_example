@@ -976,6 +976,69 @@ namespace MCU
 		static void powerUp(void){Core::PRR_::ClearBit(7);}
 		static void powerDown(void){Core::PRR_::SetBit(7);}
 		//end TWI power management		
+
+		//Get TWI Status
+		static uint8_t get_status(void)
+		{
+			uint8_t byte_ = TWSR_::Get();
+			const uint8_t mask_ = ((1<<7)|(1<<6)|(1<<5)|(1<<4)|(1<<3)|(1<<2));
+			byte_ &= mask_;
+			return byte_;
+		}
+
+		//Get TWI prescaler
+		static uint8_t get_prescaler(void)
+		{
+			uint8_t byte_ = TWSR_::Get();
+			const uint8_t mask_ = ((1<<1)|(1<<0));
+			byte_ &= mask_;
+			return byte_;
+		}
+		
+		//Send start condition
+		static void send_start(void)
+		{
+			uint8_t byte_ = TWCR_::Get();
+			byte_ |= (1<<7)|(1<<5)|(1<<2);
+			TWCR_::Set(byte_);
+		}
+		//
+
+		// TWI bitrate prescaler
+		namespace Prescaler
+		{
+			static void Set_1(void)
+			{
+				uint8_t byte_ = TWSR_::Get();
+				byte_ &= ~((1<<1)|(1<<0));
+				TWSR_::Set(byte_);
+			}
+
+			static void Set_4(void)
+			{
+				uint8_t byte_ = TWSR_::Get();
+				byte_ &= ~(1<<1);
+				byte_ |= (1<<0);
+				TWSR_::Set(byte_);
+			}
+
+			static void Set_16(void)
+			{
+				uint8_t byte_ = TWSR_::Get();
+				byte_ &= ~(1<<0);
+				byte_ |= (1<<1);
+				TWSR_::Set(byte_);
+			}
+
+			static void Set_64(void)
+			{
+				uint8_t byte_ = TWSR_::Get();
+				byte_ |= (1<<1)|(1<<0);
+				TWSR_::Set(byte_);
+			}
+		} //// end TWI bitrate prescaler
+
+		
 		
 	}// end Two-wire interface
 	
