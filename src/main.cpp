@@ -12,11 +12,6 @@ ISR(WDT_vect)
 }
 #endif //TASKMANAGER_HPP
 
-ISR(TWI_vect)
-{
-
-}
-
 void setup() {
 
   #ifdef MCU_Mega328_HPP

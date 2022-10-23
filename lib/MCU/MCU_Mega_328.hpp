@@ -3,6 +3,7 @@
 
 #include <RegisterBase.hpp>
 #include <IO_port_basic.hpp>
+#include <avr/interrupt.h>
 
 // Atmega328 MicroController Unit 
 namespace MCU
@@ -534,7 +535,15 @@ namespace MCU
 	}// end Universal synchronous/asynchronous receiver/transmitter
 	
 	namespace TWI_ // Two-wire interface
-	{
+	{	
+		enum Error
+		{
+			no_error,
+			start_not_transmitted,
+		};
+
+		uint8_t error;
+
 		//TWI Bit rate register
 		struct TWBR_ : public RegisterBase<0xb8> {};
 		// end TWI Bit rate register
@@ -549,23 +558,75 @@ namespace MCU
 			static const uint8_t b_TWS0 = 3;
 			static const uint8_t b_TWPS1 = 1;
 			static const uint8_t b_TWPS0 = 0;
+
+			static const uint8_t status_mask = 0b11111100;
+
+			//Master transmitter mode
+			static const uint8_t START_t = 			0x08;
+			static const uint8_t REP_START_t = 		0x10;
+			static const uint8_t SLAW_t_ACK_r = 	0x18;
+			static const uint8_t SLAW_t_NACK_r = 	0x20;
+			static const uint8_t DATA_t_ACK_r = 	0x28;
+			static const uint8_t DATA_t_NACK_r = 	0x30;
+			static const uint8_t ARBIT_lost = 		0x38;
+			//Master receiver mode
+			static const uint8_t SLAR_t_ACK_r = 	0x40;
+			static const uint8_t SLAR_t_NACK_r = 	0x48;
+			static const uint8_t DATA_r_ACK_t = 	0x50;
+			static const uint8_t DATA_r_NACK_t = 	0x58;
+			//Slave transmitter mode
+			static const uint8_t Own_SLAR_r_ACK_t = 0xa8;
+			static const uint8_t ARBIT_Lost_Own_SLAR_r_ACK_t = 0xb0;
+			static const uint8_t DATA_t_ACK_r = 	0xb8;
+			static const uint8_t DATA_t_NACK_r = 	0xc0;
+			static const uint8_t Last_DATA_t_ACK_r = 	0xc8;
+			//Slave receiver mode
+			static const uint8_t OwnSLAW_r_ACK_t = 	0x60;
+			static const uint8_t ARBIT_Lost_Own_SLAW_r_ACK_t = 0x68;
+			static const uint8_t General_call_r_ACK_t = 0x70;
+			static const uint8_t ARBIT_Lost_General_call_r_ACK_t = 0x78;
+			static const uint8_t PrevAdd_own_SLAW_Data_r_ACK_t = 0x80;
+			static const uint8_t PrevAdd_own_SLAW_Data_r_NACK_t = 0x88;
+			static const uint8_t PrevAdd_Gen_call_DATA_r_ACK_t = 0x90;
+			static const uint8_t PrevAdd_Gen_call_DATA_r_NACK_t = 0x98;
+			static const uint8_t STOP_or_REP_START_r = 0xa0;
 		};
 		// end TWI status register
 		
 		//TWI(slave) address register
-		struct TWAR_ : public RegisterBase<0xba> {};
+		struct TWAR_ : public RegisterBase<0xba> 
+		{
+			static const uint8_t slave_address_mask = 		0b11111110;
+			static const uint8_t general_call_flag_mask = 	0b00000001;
+
+			static const uint8_t b_TWGCE = 0;
+		};
 		// end TWI(slave) address register
 		
+		void set_slave_address(uint8_t slave_address);
+
 		//TWI data register
 		struct TWDR_ : public RegisterBase<0xbb> {};
 		// end TWI data register
 		
 		//TWI control register
-		struct TWCR_ : public RegisterBase<0xbc> {};
+		struct TWCR_ : public RegisterBase<0xbc> 
+		{
+			static const uint8_t b_TWINT = 7;
+			static const uint8_t b_TWEA = 6;
+			static const uint8_t b_TWSTA = 5;
+			static const uint8_t b_TWSTO = 4;
+			static const uint8_t b_TWWC = 3;
+			static const uint8_t b_TWEN = 2;
+			static const uint8_t b_TWIE = 0;
+		};
 		// end TWI control register
 		
 		//TWI(slave) address mask register
-		struct TWAMR_ : public RegisterBase<0xbd> {};
+		struct TWAMR_ : public RegisterBase<0xbd> 
+		{
+			static const uint8_t slave_address_mask = 		0b11111110;
+		};
 		//end TWI(slave) address mask register
 
 		//TWI power management
@@ -580,8 +641,11 @@ namespace MCU
 		 uint8_t get_prescaler(void);
 	
 		//Send start condition
-		 void send_start(void);
+		void send_start(void);
+		void check_start(void);
+		void send_SLA_W(uint8_t slave_address);
 
+				
 		// TWI bitrate prescaler
 		namespace Prescaler
 		{
