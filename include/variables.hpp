@@ -12,4 +12,11 @@ extern uint8_t some_var;
 typedef TaskManager<task_queue_size> TaskManager5;
 extern TaskManager5 OS;
 
+uint8_t day;
+uint8_t month;
+uint16_t year;
+
+uint8_t hour;
+uint8_t minute;
+
 #endif //VARIABLES_HPP_

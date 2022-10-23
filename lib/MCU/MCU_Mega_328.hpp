@@ -8,7 +8,7 @@
 namespace MCU
 {
 		
-	namespace IO_
+	namespace IO_ //IO_ports
 	{
 		struct PORTB_ : public IO_port_basic<0x23, 0x24, 0x25> {};
 		struct PORTC_ : public IO_port_basic<0x26, 0x27, 0x28> {};
@@ -28,7 +28,7 @@ namespace MCU
 		
 	} // end IO
 	
-	namespace Sleep_
+	namespace Sleep_ //Power save modes
 	{
 		// Sleep mode control register
 		struct SMCR_ : public RegisterBase<0x53> 
@@ -42,6 +42,7 @@ namespace MCU
 		 void Enable(void);
 		 void Disable(void);
 		 void Go(void);
+		 bool is_Sleep_Enabled(void);
 
 		namespace Mode
 		{
@@ -55,7 +56,7 @@ namespace MCU
 		
 	} // end Sleep mode control register
 	
-	namespace Core
+	namespace Core //MCU core
 	{
 		// Status register
 		struct SREG_ : public RegisterBase<0x5f> {};
@@ -111,7 +112,7 @@ namespace MCU
 		
 	}// end MCU core control registers
 		
-	namespace Watchdog	
+	namespace Watchdog	//Watchdog timer
 	{
 		/////////////////////////////////////////////////////////////////
 		//Watchdog timer control register

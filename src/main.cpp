@@ -12,6 +12,11 @@ ISR(WDT_vect)
 }
 #endif //TASKMANAGER_HPP
 
+ISR(TWI_vect)
+{
+
+}
+
 void setup() {
 
   #ifdef MCU_Mega328_HPP
@@ -21,7 +26,7 @@ void setup() {
 
   MCU::SPI_::powerDown();
   MCU::USART_::powerDown();
-  //MCU::ADC_::ADC_powerDown();
+  MCU::ADC_::powerDown();
   MCU::TC0_::powerDown();
   MCU::TC1_::powerDown();
   MCU::TC2_::powerDown();
@@ -32,6 +37,8 @@ void setup() {
   MCU::Watchdog::Prescaler::set_2048();
   MCU::Watchdog::Mode::interrupt();
   MCU::Watchdog::Interrupt_Enable();
+
+  MCU::Sleep_::Mode::PowerDown();
 
   #endif //MCU_Mega328_HPP
 
