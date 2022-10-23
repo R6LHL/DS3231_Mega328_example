@@ -31,59 +31,26 @@ namespace MCU
 	namespace Sleep_
 	{
 		// Sleep mode control register
-		struct SMCR_ : public RegisterBase<0x53> {};
-		
-		static void Enable(void){SMCR_::SetBit(0);}
-		static void Disable(void){SMCR_::ClearBit(0);}
-		static void Go(void){}
-		
+		struct SMCR_ : public RegisterBase<0x53> 
+		{
+			static const uint8_t b_SM2 = 3;
+			static const uint8_t b_SM1 = 2;
+			static const uint8_t b_SM0 = 1;
+			static const uint8_t b_SE = 0;
+		};
+				
+		 void Enable(void);
+		 void Disable(void);
+		 void Go(void);
+
 		namespace Mode
 		{
-			static void Idle(void)
-			{
-				uint8_t config_byte = SMCR_::Get();
-				config_byte &= ~((1<<3)|(1<<2)|(1<<1));
-				SMCR_::Set(config_byte);
-			}
-		
-			static void ADC_NoiseReduction(void)
-			{
-				uint8_t config_byte = SMCR_::Get();
-				config_byte &= ~((1<<3)|(1<<2));
-				config_byte |= (1<<1);
-				SMCR_::Set(config_byte);
-			}
-		
-			static void PowerDown(void)
-			{
-				uint8_t config_byte = SMCR_::Get();
-				config_byte &= ~((1<<3)|(1<<1));
-				config_byte |= (1<<2);
-				SMCR_::Set(config_byte);
-			}
-		
-			static void PowerSave(void)
-			{
-				uint8_t config_byte = SMCR_::Get();
-				config_byte &= ~(1<<3);
-				config_byte |= ((1<<2)|(1<<1));
-				SMCR_::Set(config_byte);
-			}	
-		
-			static void Standby(void)
-			{
-				uint8_t config_byte = SMCR_::Get();
-				config_byte &= ~(1<<1);
-				config_byte |= ((1<<3)|(1<<2));
-				SMCR_::Set(config_byte);
-			}
-		
-			static void ExtendedStandby(void)
-			{
-				uint8_t config_byte = SMCR_::Get();
-				config_byte |= ((1<<3)|(1<<2)|(1<<1));
-				SMCR_::Set(config_byte);
-			}
+			void Idle(void);
+			void ADC_NoiseReduction(void);
+			void PowerDown(void);	
+			void PowerSave(void);
+			void Standby(void);
+			void ExtendedStandby(void);
 		}
 		
 	} // end Sleep mode control register
@@ -123,8 +90,20 @@ namespace MCU
 		// end Clock Precaler register
 		
 		//Power reduction register
-		struct PRR_ : public RegisterBase<0x64> {};
-			
+		struct PRR_ : public RegisterBase<0x64> 
+		{
+			static const uint8_t b_PRTWI0 = 7;
+			static const uint8_t b_PRTIM2 = 6;
+			static const uint8_t b_PRTIM0 = 5;
+			static const uint8_t b_PRTIM1 = 3;
+			static const uint8_t b_PRSPI0 = 2;
+			static const uint8_t b_PRUSART0 = 1;
+			static const uint8_t b_PRADC = 0;
+		};
+
+		//General TC control register
+		struct GTCCR_ : public RegisterBase<0x43>	{};
+		//end General TC control registe	
 		/*
 		inline void cli(void) {asm volatile ("cli");}
 		inline void sei(void) {asm volatile ("sei");}
@@ -136,184 +115,65 @@ namespace MCU
 	{
 		/////////////////////////////////////////////////////////////////
 		//Watchdog timer control register
-		struct WDTCSR_ : public RegisterBase<0x60> {};
+		struct WDTCSR_ : public RegisterBase<0x60> 
+		{
+			static const uint8_t b_WDIF = 7;
+			static const uint8_t b_WDIE = 6;
+			static const uint8_t b_WDP3 = 5;
+			static const uint8_t b_WDCE = 4;
+			static const uint8_t b_WDE = 3;
+			static const uint8_t b_WDP2 = 2;
+			static const uint8_t b_WDP1 = 1;
+			static const uint8_t b_WDP0 = 0;
+		};
 		
 		//WDT interrupt flag functions
-		static bool is_I_Flag_Set(void)
-		{
-			if (!(WDTCSR_::GetBit(7))) return false;
-			else return true;
-		}
-		
-		static void set_I_Flag(void){WDTCSR_::SetBit(7);}
-		static void clear_I_Flag(void){WDTCSR_::SetBit(7);}
+		bool is_I_Flag_Set(void);
+		void set_I_Flag(void);
+		void clear_I_Flag(void);
 		//end WDT interrupt flag functions
 		
 		//WDT interrupt enable flag functions
-		static void Interrupt_Enable(void){WDTCSR_::SetBit(6);}
-		static void Interrupt_Disable(void){WDTCSR_::ClearBit(6);}
-		static bool is_InterruptEnabled(void)
-		{
-			if (!(WDTCSR_::GetBit(6))) return false;
-			else return true;
-		}
+		void Interrupt_Enable(void);
+		void Interrupt_Disable(void);
+		bool is_InterruptEnabled(void);
 		// end WDT interrupt enable flag functions
 		
 		// WDT Change enable flag functions
-		static void Change_Enable(void){WDTCSR_::SetBit(4);}
-		static void Change_Disable(void){WDTCSR_::ClearBit(4);}
+		void Change_Enable(void);
+		void Change_Disable(void);
 		// end WDT Change enable flag functions
 		
 		// WDT System reset enable flag functions
-		static void System_reset_enable(void)
-		{
-			Change_Enable();
-			WDTCSR_::SetBit(3);
-		}
-		
-		static void System_reset_disable(void)
-		{
-			Change_Enable();
-			WDTCSR_::ClearBit(3);
-		}
+		void System_reset_enable(void);
+		void System_reset_disable(void);
 		// end WDT System reset enable flag functions
 		
 		namespace Prescaler
 		{
 			//WDT prescaler functions
-		  static void set_2048(void) 				//16ms at 5v power supply
-			{
-				uint8_t byte_ = WDTCSR_ ::Get();
-				byte_ &= ~((1<<5)|(1<<2)|(1<<1)|(1<<0));
-				Change_Enable();
-				WDTCSR_ ::Set(byte_);
-			}
-		
-			static void set_4096(void)				//32ms at 5v power supply
-			{
-				uint8_t byte_ = WDTCSR_ ::Get();
-				byte_ &= ~((1<<5)|(1<<2)|(1<<1));
-				byte_ |= (1<<0);
-				Change_Enable();
-				WDTCSR_ ::Set(byte_);
-			}
-		
-			static void set_8192(void)				//64ms at 5v power supply
-			{
-				uint8_t byte_ = WDTCSR_ ::Get();
-				byte_ &= ~((1<<5)|(1<<2)|(1<<0));
-				byte_ |= (1<<1);
-				Change_Enable();
-				WDTCSR_ ::Set(byte_);
-			}
-		
-			static void set_16348(void)				//128ms at 5v power supply
-			{
-				uint8_t byte_ = WDTCSR_ ::Get();
-				byte_ &= ~((1<<5)|(1<<2));
-				byte_ |= ((1<<1)|(1<<0));
-				Change_Enable();
-				WDTCSR_ ::Set(byte_);
-			}
-		
-			static void set_32768(void)				//256ms at 5v power supply
-			{
-				uint8_t byte_ = WDTCSR_ ::Get();
-				byte_ &= ~((1<<5)|(1<<1)|(1<<0));
-				byte_ |= (1<<2);
-				Change_Enable();
-				WDTCSR_ ::Set(byte_);
-			}
-		
-			static void set_65536(void)				//512ms at 5v power supply
-			{
-				uint8_t byte_ = WDTCSR_ ::Get();
-				byte_ &= ~((1<<5)|(1<<1));
-				byte_ |= ((1<<2)|(1<<0));
-				Change_Enable();
-				WDTCSR_ ::Set(byte_);
-			}
-			
-			static void set_131072(void)				//1024ms at 5v power supply
-			{
-				uint8_t byte_ = WDTCSR_ ::Get();
-				byte_ &= ~((1<<5)|(1<<0));
-				byte_ |= ((1<<2)|(1<<1));
-				Change_Enable();
-				WDTCSR_ ::Set(byte_);
-			}
-		
-			static void set_262144(void)				//2048ms at 5v power supply
-			{
-				uint8_t byte_ = WDTCSR_ ::Get();
-				byte_ &= ~(1<<5);
-				byte_ |= ((1<<2)|(1<<1)|(1<<0));
-				Change_Enable();
-				WDTCSR_ ::Set(byte_);
-			}
-		
-			static void set_524288(void)				//4096ms at 5v power supply
-			{
-				uint8_t byte_ = WDTCSR_ ::Get();
-				byte_ &= ~((1<<2)|(1<<1)|(1<<0));
-				byte_ |= (1<<5);
-				Change_Enable();
-				WDTCSR_ ::Set(byte_);
-			}
-		
-			static void set_1048576(void)				//8192ms at 5v power supply
-			{
-				uint8_t byte_ = WDTCSR_ ::Get();
-				byte_ &= ~((1<<2)|(1<<1));
-				byte_ |= ((1<<5)|(1<<0));
-				Change_Enable();
-				WDTCSR_ ::Set(byte_);
-			}
+			void set_2048(void); 			//16ms at 5v power supply
+			void set_4096(void);				//32ms at 5v power supply
+			void set_8192(void);				//64ms at 5v power supply
+			void set_16348(void);			//128ms at 5v power supply
+			void set_32768(void);			//256ms at 5v power supply	
+			void set_65536(void);			//512ms at 5v power supply
+			void set_131072(void);			//1024ms at 5v power supply	
+			void set_262144(void);			//2048ms at 5v power supply
+			void set_524288(void);			//4096ms at 5v power supply
+			void set_1048576(void);			//8192ms at 5v power supply
 		}
 		//end WDT prescaler functions
 		namespace Mode
 		{
 			//WDT Configurations if WDTON fuse bit is not set
-			static void stop(void)
-			{
-				uint8_t byte_ = WDTCSR_ ::Get();
-				byte_ &= ~((1<<6)|(1<<3));
-				Change_Enable();
-				WDTCSR_ ::Set(byte_);
-			}
-		
-			static void interrupt(void)
-			{
-				uint8_t byte_ = WDTCSR_ ::Get();
-				byte_ &= ~(1<<3);
-				byte_ |= (1<<6);
-				Change_Enable();
-				WDTCSR_ ::Set(byte_);
-			}
-		
-			static void SystemReset(void)
-			{
-			uint8_t byte_ = WDTCSR_ ::Get();
-			byte_ &= ~(1<<6);
-			byte_ |= (1<<3);
-			Change_Enable();
-			WDTCSR_ ::Set(byte_);
-			}
-		
-			static void Interrupt_And_SystemReset(void)
-			{
-				uint8_t byte_ = WDTCSR_ ::Get();
-				byte_ |= ((1<<6)|(1<<3));
-				Change_Enable();
-				WDTCSR_ ::Set(byte_);
-			}
+			 void stop(void);
+			 void interrupt(void);
+			 void SystemReset(void);
+			 void Interrupt_And_SystemReset(void);
 		}
 		//end WDT Configurations
-		// end Watchdog timer control register
-		
-		//General TC control register
-		struct GTCCR_ : public RegisterBase<0x43>	{};
-		//end General TC control register
+		// end Watchdog timer control registerr
 	}	
 	
 	namespace EXINT_ //external interrupts
@@ -383,10 +243,9 @@ namespace MCU
 		//end TC0_ output compare register B
 			
 		//Timer0 power management
-		static void powerUp(void){Core::PRR_::ClearBit(5);}
-		static void powerDown(void){Core::PRR_::SetBit(5);}
+		void powerUp(void);
+		void powerDown(void);
 		//end Timer0 power management
-						
 	} //end Timer-counter 0
 		
 	namespace TC1_ // Timer-counter 1 16bit
@@ -449,8 +308,8 @@ namespace MCU
 			
 			
 		//Timer1 power management
-		static void powerUp(void){Core::PRR_::ClearBit(3);}
-		static void powerDown(void){Core::PRR_::SetBit(3);}
+		 void powerUp(void);
+		 void powerDown(void);
 		//end Timer1 power management
 					
 	}//end  Timer-counter 1 16bit
@@ -490,245 +349,93 @@ namespace MCU
 		//end Asynchronous status register
 			
 		//Timer2 power management
-		static void powerUp(void){Core::PRR_::ClearBit(6);}	
-		static void powerDown(void){Core::PRR_::SetBit(6);}
+		void powerUp(void);
+		void powerDown(void);
 		//end Timer2 power management
 			
-		static void TimerStop(void)
-		{
-			uint8_t byte_ = TCCR2B_ ::Get();
-			byte_ &= ~((1<<2)|(1<<1)|(1<<0));
-			TCCR2B_ ::Set(byte_);
-		}
-		
+		void TimerStop(void);
+
 		namespace Prescaler
 		{
-			static void reset(void){Watchdog::GTCCR_::SetBit(1);}
-			
-			static void set_1(void)
-			{
-				uint8_t byte_ = TCCR2B_ ::Get();
-				byte_ &= ~((1<<2));
-				byte_ |= (1<<0);
-				TCCR2B_ ::Set(byte_);
-			}
-			
-			static void set_8(void)
-			{
-				uint8_t byte_ = TCCR2B_ ::Get();
-				byte_ &= ~((1<<2)|(1<<0));
-				byte_ |= (1<<1);
-				TCCR2B_ ::Set(byte_);
-			}
-			
-			static void set_32(void)
-			{
-				uint8_t byte_ = TCCR2B_ ::Get();
-				byte_ &= ~(1<<2);
-				byte_ |= ((1<<1)|(1<<0));
-				TCCR2B_ ::Set(byte_);
-			}
-			
-			static void set_64(void)
-			{			
-				uint8_t byte_ = TCCR2B_ ::Get();
-				byte_ &= ~((1<<1)|(1<<0));
-				byte_ |= (1<<2);
-				TCCR2B_ ::Set(byte_);
-			}
-			
-			static void set_128(void)
-			{
-				uint8_t byte_ = TCCR2B_ ::Get();
-				byte_ &= ~(1<<1);
-				byte_ |= ((1<<2)|(1<<0));
-				TCCR2B_ ::Set(byte_);
-			}
-			
-			static void set_256(void)
-			{
-				uint8_t byte_ = TCCR2B_ ::Get();
-				byte_ &= ~(1<<0);
-				byte_ |= ((1<<2)|(1<<1));
-				TCCR2B_ ::Set(byte_);
-			}
-			
-			static void set_1024(void)
-			{
-				uint8_t byte_ = TCCR2B_ ::Get();
-				byte_ |= ((1<<2)|(1<<1)|(1<<0));
-				TCCR2B_ ::Set(byte_);
-			}
+			void reset(void);
+			void set_1(void);
+			void set_8(void);
+			void set_32(void);
+			void set_64(void);
+			void set_128(void);
+			void set_256(void);
+			void set_1024(void);
 		}
 		
 		namespace Interrupt_source
 		{
-			static void Overflow_Enable(void){TIMSK2_::SetBit(0);}
-			static void Overflow_Disable(void){TIMSK2_::ClearBit(0);}
+			void Overflow_Enable(void);
+			void Overflow_Disable(void);
 		}
 			
 	}// end Timer-counter 2 8bit
-
 	
-	
-	//Serial-peripherial interface
-	namespace SPI_
+	namespace SPI_ //Serial-peripherial interface
 	{
 		//SPI_ control register 0
 		struct SPCR0_ : public RegisterBase<0x4c> {};
 		//SPI_ status register 0
 		struct SPSR0_ : public RegisterBase<0x4d> {};
 
-		static bool is_TRX_Complete(void){return SPSR0_::GetBit(7);}
-		static bool is_Data_Collision(void){return SPSR0_::GetBit(6);}
+		 bool is_TRX_Complete(void);
+		 bool is_Data_Collision(void);
 				
-		static void Interrupt_Enable(void){SPCR0_::SetBit(7);}
-		static void Interrupt_Disable(void){SPCR0_::ClearBit(7);}
+		 void Interrupt_Enable(void);
+		 void Interrupt_Disable(void);
 		
-		static void Enable(void){SPCR0_::SetBit(6);}
-		static void Disable(void){SPCR0_::ClearBit(6);}
+		 void Enable(void);
+		 void Disable(void);
 		
-		static void Set_As_Master(void){SPCR0_::SetBit(4);}
-		static void Set_As_Slave(void){SPCR0_::ClearBit(4);}
+		 void Set_As_Master(void);
+		 void Set_As_Slave(void);
 						
 		namespace Data_Order
 		{
-			static void MSB_first(void){SPCR0_::ClearBit(5);}
-			static void LSB_first(void){SPCR0_::SetBit(5);}
+			 void MSB_first(void);
+			 void LSB_first(void);
 		}
 		
 		namespace Mode
 		{
-		
-			static void set_0(void)
-			{
-				uint8_t config_byte = SPCR0_::Get();
-				config_byte &= ~((1<<3)|(1<<2));
-				SPCR0_::Set(config_byte);
-			}
-			
-			static void set_1(void)
-			{
-				uint8_t config_byte = SPCR0_::Get();
-				config_byte &= ~(1<<3);
-				config_byte |= (1<<2);
-				SPCR0_::Set(config_byte);
-			}
-			
-			static void set_2(void)
-			{
-				uint8_t config_byte = SPCR0_::Get();
-				config_byte &= ~(1<<2);
-				config_byte |= (1<<3);
-				SPCR0_::Set(config_byte);
-			}
-			
-			static void set_3(void)
-			{
-				uint8_t config_byte = SPCR0_::Get();
-				config_byte |= ((1<<3)|(1<<2));
-				SPCR0_::Set(config_byte);
-			}
+			void set_0(void);		
+			void set_1(void);
+			void set_2(void);			
+			void set_3(void);
 		}
 		
 		namespace Rate
 		{
-			static void F_div_2(void)
-			{
-				SPSR0_::SetBit(0);
-				uint8_t config_byte = SPCR0_::Get();
-				config_byte &= ~((1<<1)|(1<<0));
-				SPCR0_::Set(config_byte);
-			}
-			
-			static void F_div_4(void)
-			{
-				SPSR0_::ClearBit(0);
-				uint8_t config_byte = SPCR0_::Get();
-				config_byte &= ~(1<<1);
-				config_byte |= (1<<0);
-				SPCR0_::Set(config_byte);
-			}
-			
-			static void F_div_8(void)
-			{
-				SPSR0_::SetBit(0);
-				uint8_t config_byte = SPCR0_::Get();
-				config_byte &= ~(1<<0);
-				config_byte |= (1<<1);
-				SPCR0_::Set(config_byte);
-			}
-				
-			static void F_div_16(void)
-			{
-				SPSR0_::ClearBit(0);
-				uint8_t config_byte = SPCR0_::Get();
-				config_byte |= ((1<<1)|(1<<0));
-				SPCR0_::Set(config_byte);
-			}
-				
-			static void F_div_32(void)
-			{
-				SPSR0_::SetBit(0);
-				uint8_t config_byte = SPCR0_::Get();
-				config_byte &= ~((1<<1)|(1<<0));
-				SPCR0_::Set(config_byte);
-			}
-				
-			static void F_div_32x2(void)
-			{
-				SPSR0_::ClearBit(0);
-				uint8_t config_byte = SPCR0_::Get();
-				config_byte &= ~(1<<1);
-				config_byte |= (1<<0);
-				SPCR0_::Set(config_byte);
-			}
-				
-			static void F_div_64(void)
-			{
-				SPSR0_::SetBit(0);
-				uint8_t config_byte = SPCR0_::Get();
-				config_byte &= ~(1<<0);
-				config_byte |= (1<<1);
-				SPCR0_::Set(config_byte);
-			}
-				
-			static void F_div_128(void)
-			{
-				SPSR0_::ClearBit(0);
-				uint8_t config_byte = SPCR0_::Get();
-				config_byte |= ((1<<1)|(1<<0));
-				SPCR0_::Set(config_byte);
-			}
-				
+			void F_div_2(void);
+			void F_div_4(void);
+			void F_div_8(void);		
+			void F_div_16(void);			
+			void F_div_32(void);		
+			void F_div_32x2(void);
+			void F_div_64(void);
+			void F_div_128(void);
 		}
 		//end SPI_ control register 0
 		
 		//SPI_ data register 0
 		struct SPDR0_ : public RegisterBase<0x4e> {};
 		
-		static uint8_t recieve(void)
-		{
-			while(!is_TRX_Complete());
-			return SPDR0_::Get();
-		}
-		static void transmit(uint8_t v)
-		{
-			while(!is_TRX_Complete());
-			SPDR0_::Set(v);
-		}
-		
+		 uint8_t recieve(void);
+		 void transmit(uint8_t v);
 		//end SPI_ data register 0
 		
 		//SPI power management
-		static void powerUp(void){Core::PRR_::ClearBit(2);}	
-		static void powerDown(void){Core::PRR_::SetBit(2);}
+		 void powerUp(void);
+		 void powerDown(void);
 		//end SPI power management
 
 	}// end Serial-peripherial interface
 	
-	//Universal synchronous/asynchronous receiver/transmitter
-	namespace USART_
+	namespace USART_ //Universal synchronous/asynchronous receiver/transmitter
 	{
 		//USART0 data register
 		struct UDR0_ : public RegisterBase<0xc6> {};
@@ -739,66 +446,33 @@ namespace MCU
 		//USART control and status register 0B
 		struct UCSR0B_ : public RegisterBase<0xc1> {};
 		
-		static bool is_RX_Complete(void){return UCSR0A_::GetBit(7);}
-		static bool is_TX_Complete(void){return UCSR0A_::GetBit(6);}
-		static void TX_Complete(void){UCSR0A_::ClearBit(6);}
-		static bool is_Data_Register_Empty(void){return UCSR0A_::GetBit(5);}
-		static bool is_Frame_Error(void){return UCSR0A_::GetBit(4);}
-		static bool is_Data_Overrun(void){return UCSR0A_::GetBit(3);}
-		static bool is_Parity_Error(void){return UCSR0A_::GetBit(2);}
+		bool is_RX_Complete(void);
+		bool is_TX_Complete(void);
+		void TX_Complete(void);
+		bool is_Data_Register_Empty(void);
+		bool is_Frame_Error(void);
+		bool is_Data_Overrun(void);
+		bool is_Parity_Error(void);
 		
-		static uint8_t RX(void)
-		{
-			while (!is_RX_Complete());
-			return UDR0_::Get();
-		}
+		uint8_t RX(void);	
+		uint16_t RX_9bit(void);
+		void TX(uint8_t value);
+		void TX_9bit(uint16_t value);
+
+		void RX_Complete_Interrupt_Enable(void);
+		void RX_Complete_Interrupt_Disable(void);
 		
-		static uint16_t RX_9bit(void)
-		{
-			while (!is_RX_Complete());
-			uint16_t word = UDR0_::Get();
-			uint8_t byte = UCSR0B_::GetBit(1);
-			word |= (byte<<8);
-			return word;
-		}
+		void TX_Complete_Interrupt_Enable(void);
+		void TX_Complete_Interrupt_Disable(void);
 		
-		static void TX(uint8_t value)
-		{
-			while (!is_Data_Register_Empty());
-			UDR0_::Set(value);
-		}
+		void Data_reg_Empty_Interrupt_Enable(void);
+		void Data_reg_Empty_Interrupt_Disable(void);
 		
-		static void TX_9bit(uint16_t value)
-		{
-			while (!is_Data_Register_Empty());
-			bool bit = value & 0b0000000100000000;
-			uint8_t byte = value & 0b0000000011111111;
-			UDR0_::Set(value);
-			if (bit==true)UCSR0B_::SetBit(0);
-			else UCSR0B_::ClearBit(0);
-		}
+		void RX_Enable(void);
+		void RX_Disable(void);
 		
-		static void RX_Complete_Interrupt_Enable(void){UCSR0B_::SetBit(7);}
-		static void RX_Complete_Interrupt_Disable(void){UCSR0B_::ClearBit(7);}
-		
-		static void TX_Complete_Interrupt_Enable(void){UCSR0B_::SetBit(6);}
-		static void TX_Complete_Interrupt_Disable(void){UCSR0B_::ClearBit(6);}
-		
-		static void Data_reg_Empty_Interrupt_Enable(void){UCSR0B_::SetBit(5);}
-		static void Data_reg_Empty_Interrupt_Disable(void){UCSR0B_::ClearBit(5);}
-		
-		static void RX_Enable(void){UCSR0B_::SetBit(4);}
-		static void RX_Disable(void){UCSR0B_::ClearBit(4);}
-		
-		static void TX_Enable(void){UCSR0B_::SetBit(3);}
-		static void TX_Disable(void)
-		{
-			while (!is_Data_Register_Empty());
-			while (!is_TX_Complete());
-			UCSR0B_::ClearBit(3);
-		}
-		
-		
+		void TX_Enable(void);
+		void TX_Disable(void);
 		//end USART control and status register 0B
 		
 		//USART control and status register 0C
@@ -806,128 +480,41 @@ namespace MCU
 		
 		namespace Set
 		{
-			static void BuadRate_div_16(void){UCSR0A_::ClearBit(1);}
-			static void BuadRate_div_8(void){UCSR0A_::SetBit(1);}
-			static void Multiprocessor_Mode(void){UCSR0A_::SetBit(0);}
-			static void noMultiprocessor_Mode(void){UCSR0A_::ClearBit(0);}
+			 void BuadRate_div_16(void);
+			 void BuadRate_div_8(void);
+			 void Multiprocessor_Mode(void);
+			 void noMultiprocessor_Mode(void);
 			
-			static void Stop_1bit(void){UCSR0C_::ClearBit(3);}
-			static void Stop_2bits(void){UCSR0C_::SetBit(3);}
+			 void Stop_1bit(void);
+			 void Stop_2bits(void);
 			
-			static void Clock_polarity0(void){UCSR0C_::ClearBit(0);}
-			static void Clock_polarity1(void){UCSR0C_::SetBit(0);}
+			 void Clock_polarity0(void);
+			 void Clock_polarity1(void);
 			
 			namespace Character_size
 			{
-				static void b5_bit(void)
-				{
-					uint8_t config_byte = UCSR0C_::Get();
-					config_byte &= ~((1<<2)|(1<<1));
-					UCSR0C_::Set(config_byte);
-					
-					config_byte = UCSR0B_::Get();
-					config_byte &= ~(1<<3);
-					UCSR0B_::Set(config_byte);
-				}
-				
-				static void b6_bit(void)
-				{
-					uint8_t config_byte = UCSR0C_::Get();
-					config_byte &= ~(1<<2);
-					config_byte |= (1<<1);
-					UCSR0C_::Set(config_byte);
-					
-					config_byte = UCSR0B_::Get();
-					config_byte &= ~(1<<3);
-					UCSR0B_::Set(config_byte);
-				}
-				
-				static void b7_bit(void)
-				{
-					uint8_t config_byte = UCSR0C_::Get();
-					config_byte &= ~(1<<1);
-					config_byte |= (1<<2);
-					UCSR0C_::Set(config_byte);
-					
-					config_byte = UCSR0B_::Get();
-					config_byte &= ~(1<<3);
-					UCSR0B_::Set(config_byte);
-				}
-				
-				static void b8_bit(void)
-				{
-					uint8_t config_byte = UCSR0C_::Get();
-					config_byte |= (1<<2)|(1<<1);
-					UCSR0C_::Set(config_byte);
-					
-					config_byte = UCSR0B_::Get();
-					config_byte &= ~(1<<3);
-					UCSR0B_::Set(config_byte);
-				}
-				
-				static void b9_bit(void)
-				{
-					uint8_t config_byte = UCSR0C_::Get();
-					config_byte |= ((1<<2)|(1<<1));
-					UCSR0C_::Set(config_byte);
-					
-					config_byte = UCSR0B_::Get();
-					config_byte |= (1<<3);
-					UCSR0B_::Set(config_byte);
-				}
+				void b5_bit(void);
+				void b6_bit(void);
+				void b7_bit(void);
+				void b8_bit(void);
+				void b9_bit(void);
 			}
 			
 			namespace Mode
 			{
-				static void Asynchronous(void)
-				{
-					uint8_t config_byte = UCSR0C_::Get();
-					config_byte &= ~((1<<7)|(1<<6));
-					UCSR0C_::Set(config_byte);
-				}
-				
-				static void Synchronous(void)
-				{
-					uint8_t config_byte = UCSR0C_::Get();
-					config_byte &= ~(1<<7);
-					config_byte |= (1<<6);
-					UCSR0C_::Set(config_byte);
-				}
-				
-				static void MasterSPI(void)
-				{
-					uint8_t config_byte = UCSR0C_::Get();
-					config_byte |= (1<<7)|(1<<6);
-					UCSR0C_::Set(config_byte);
-				}
+				void Asynchronous(void);
+				void Synchronous(void);
+				void MasterSPI(void);
 			}
 			
 			namespace Parity_control
 			{
-				static void disable(void)
-				{
-					uint8_t config_byte = UCSR0C_::Get();
-					config_byte &= ~((1<<5)|(1<<4));
-					UCSR0C_::Set(config_byte);
-				}
-				
-				static void even(void)
-				{
-					uint8_t config_byte = UCSR0C_::Get();
-					config_byte &= ~(1<<4);
-					config_byte |= (1<<5);
-					UCSR0C_::Set(config_byte);
-				}
-				
-				static void odd(void)
-				{
-					uint8_t config_byte = UCSR0C_::Get();
-					config_byte |= ((1<<5)|(1<<4));
-					UCSR0C_::Set(config_byte);
-				}
+				void disable(void);
+				void even(void);
+				void odd(void);
 			}
 		}
-		
+			
 		//end USART control and status register 0C
 		
 		//USART buad rate 0 register low
@@ -939,21 +526,29 @@ namespace MCU
 		// end USART buad rate 0 register high
 		
 		//USART0 power management
-		static void USART0_powerUp(void){Core::PRR_::ClearBit(1);}	
-		static void USART0_powerDown(void){Core::PRR_::SetBit(1);}
+		void powerUp(void);
+		void powerDown(void);
 		//end USART0 power management
 			
 	}// end Universal synchronous/asynchronous receiver/transmitter
 	
-	// Two-wire interface
-	namespace TWI_
+	namespace TWI_ // Two-wire interface
 	{
 		//TWI Bit rate register
 		struct TWBR_ : public RegisterBase<0xb8> {};
 		// end TWI Bit rate register
 		
 		//TWI status register
-		struct TWSR_ : public RegisterBase<0xb9> {};
+		struct TWSR_ : public RegisterBase<0xb9> 
+		{
+			static const uint8_t b_TWS4 = 7;
+			static const uint8_t b_TWS3 = 6;
+			static const uint8_t b_TWS2 = 5;
+			static const uint8_t b_TWS1 = 4;
+			static const uint8_t b_TWS0 = 3;
+			static const uint8_t b_TWPS1 = 1;
+			static const uint8_t b_TWPS0 = 0;
+		};
 		// end TWI status register
 		
 		//TWI(slave) address register
@@ -973,77 +568,30 @@ namespace MCU
 		//end TWI(slave) address mask register
 
 		//TWI power management
-		static void powerUp(void){Core::PRR_::ClearBit(7);}
-		static void powerDown(void){Core::PRR_::SetBit(7);}
+		 void powerUp(void);
+		 void powerDown(void);
 		//end TWI power management		
 
 		//Get TWI Status
-		static uint8_t get_status(void)
-		{
-			uint8_t byte_ = TWSR_::Get();
-			const uint8_t mask_ = ((1<<7)|(1<<6)|(1<<5)|(1<<4)|(1<<3)|(1<<2));
-			byte_ &= mask_;
-			return byte_;
-		}
+		 uint8_t get_status(void);
 
 		//Get TWI prescaler
-		static uint8_t get_prescaler(void)
-		{
-			uint8_t byte_ = TWSR_::Get();
-			const uint8_t mask_ = ((1<<1)|(1<<0));
-			byte_ &= mask_;
-			return byte_;
-		}
-		
+		 uint8_t get_prescaler(void);
+	
 		//Send start condition
-		static void send_start(void)
-		{
-			uint8_t byte_ = TWCR_::Get();
-			byte_ |= (1<<7)|(1<<5)|(1<<2);
-			TWCR_::Set(byte_);
-		}
-		//
+		 void send_start(void);
 
 		// TWI bitrate prescaler
 		namespace Prescaler
 		{
-			static void Set_1(void)
-			{
-				uint8_t byte_ = TWSR_::Get();
-				byte_ &= ~((1<<1)|(1<<0));
-				TWSR_::Set(byte_);
-			}
-
-			static void Set_4(void)
-			{
-				uint8_t byte_ = TWSR_::Get();
-				byte_ &= ~(1<<1);
-				byte_ |= (1<<0);
-				TWSR_::Set(byte_);
-			}
-
-			static void Set_16(void)
-			{
-				uint8_t byte_ = TWSR_::Get();
-				byte_ &= ~(1<<0);
-				byte_ |= (1<<1);
-				TWSR_::Set(byte_);
-			}
-
-			static void Set_64(void)
-			{
-				uint8_t byte_ = TWSR_::Get();
-				byte_ |= (1<<1)|(1<<0);
-				TWSR_::Set(byte_);
-			}
-		} //// end TWI bitrate prescaler
-
-		
-		
+			 void Set_1(void);
+			 void Set_4(void);	
+			 void Set_16(void);
+			 void Set_64(void);
+		} // end TWI bitrate prescaler
 	}// end Two-wire interface
 	
-	//Analog comparator
-	namespace AC_
+	namespace AC_ //Analog comparator
 	{
 		/*
 		//ADC control and status register B
@@ -1058,143 +606,54 @@ namespace MCU
 		//Digital input disable register 1
 		struct DIDR1_ : public RegisterBase<0x7f> {};
 		
-		static void digital_Input_Enable(uint8_t ac_pin_number)
-		{
-			if ((ac_pin_number == 0) || (ac_pin_number == 1))
-			{
-				DIDR1_::ClearBit(ac_pin_number);
-			}
-			else return;
-		}
-		
-		static void digital_Input_Disable(uint8_t ac_pin_number)
-		{
-			if ((ac_pin_number == 0) || (ac_pin_number == 1))
-			{
-				DIDR1_::SetBit(ac_pin_number);
-			}
-			else return;
-		}
+	 	void digital_Input_Enable(uint8_t ac_pin_number);
+		void digital_Input_Disable(uint8_t ac_pin_number);
 		// end Digital input disable register 1
 				
 	}// end Analog comparator
 	
-	//Analog to digital converter
-	namespace ADC_
+	namespace ADC_ //Analog to digital converter
 	{
 		//ADC multiplexer selection register
 		struct ADMUX_ : public RegisterBase<0x7c> {};
 		
 		namespace Reference
 		{
-			static void AREF(void)
-			{
-				uint8_t byte_ = ADMUX_::Get();
-				byte_ &= ~((1<<7)|(1<<6));
-				ADMUX_::Set(byte_);
-			}
-			
-			static void AVCC(void)
-			{
-				uint8_t byte_ = ADMUX_::Get();
-				byte_ &= ~(1<<7);
-				byte_ |= (1<<6);
-				ADMUX_::Set(byte_);
-			}
-			
-			static void Internal_1V1(void)
-			{
-				uint8_t byte_ = ADMUX_::Get();
-				byte_ |= ((1<<7)|(1<<6));
-				ADMUX_::Set(byte_);
-			}
+			void AREF(void);
+			void AVCC(void);
+			void Internal_1V1(void);
 		}
 		
 		namespace Adjust_Result
 		{
-			static void Left(void)	{ADMUX_::SetBit(5);}
-			static void Right(void){ADMUX_::ClearBit(5);}
-			static bool is_Result_Left_Adjusted(void){return ADMUX_::GetBit(5);}
+			 void Left(void);
+			 void Right(void);
+			 bool is_Result_Left_Adjusted(void);
 		}
 
-		static void Select_Channel_(uint8_t ch)
-		{
-			uint8_t byte_ = ADMUX_::Get();
-			byte_ &= ~((1<<3)|(1<<2)|(1<<1)|(1<<0));
-			
-			if ((ch >=0) && (ch <= 7)){byte_ |= ch;}
-			else {ch = 0;}
-			ADMUX_::Set(byte_);
-			return;
-		}
+		void Select_Channel_(uint8_t ch);
 		// end ADC multiplexer selection register
 		
 		//ADC control and status register A
 		struct ADCSRA_ : public RegisterBase<0x7a> {};
 		
-		static void Enable(void){ADCSRA_::SetBit(7);}
-		static void Disable(void){ADCSRA_::ClearBit(7);}
-		static void Start_Conversion(void){ADCSRA_::SetBit(6);}
-		static bool Is_Conversion_Running(void){ADCSRA_::GetBit(6);}
-		static void Auto_Trigger_Enable(void){ADCSRA_::SetBit(5);}
-		static void Interrupt_Enable(void){ADCSRA_::SetBit(3);}
-		static void Interrupt_Disable(void){ADCSRA_::ClearBit(3);}
+		 void Enable(void);
+		 void Disable(void);
+		 void Start_Conversion(void);
+		 bool Is_Conversion_Running(void);
+		 void Auto_Trigger_Enable(void);
+		 void Interrupt_Enable(void);
+		 void Interrupt_Disable(void);
 		
 		namespace Prescaler
 		{
-			static void Set_2(void)
-			{
-				uint8_t config_byte = ADCSRA_::Get();
-				config_byte &= ~((1<<2)|(1<<1)|(1<<0));
-				ADCSRA_::Set(config_byte);
-			}
-			
-			static void Set_4(void)
-			{
-				uint8_t config_byte = ADCSRA_::Get();
-				config_byte &= ~((1<<2)|(1<<0));
-				config_byte |= (1<<1);
-				ADCSRA_::Set(config_byte);
-			}
-			
-			static void Set_8(void)
-			{
-				uint8_t config_byte = ADCSRA_::Get();
-				config_byte &= ~(1<<2);
-				config_byte |= ((1<<1)|(1<<0));
-				ADCSRA_::Set(config_byte);
-			}
-			
-			static void Set_16(void)
-			{
-				uint8_t config_byte = ADCSRA_::Get();
-				config_byte &= ~((1<<1)|(1<<0));
-				config_byte |= (1<<2);
-				ADCSRA_::Set(config_byte);
-			}
-			
-			static void Set_32(void)
-			{
-				uint8_t config_byte = ADCSRA_::Get();
-				config_byte &= ~(1<<1);
-				config_byte |= ((1<<2)|(1<<0));
-				ADCSRA_::Set(config_byte);
-			}
-			
-			static void Set_64(void)
-			{
-				uint8_t config_byte = ADCSRA_::Get();
-				config_byte &= ~(1<<0);
-				config_byte |= ((1<<2)|(1<<1));
-				ADCSRA_::Set(config_byte);
-			}
-			
-			static void Set_128(void)
-			{
-				uint8_t config_byte = ADCSRA_::Get();
-				config_byte |= ((1<<2)|(1<<1)|(1<<0));
-				ADCSRA_::Set(config_byte);
-			}
+			void Set_2(void);
+			void Set_4(void);
+			void Set_8(void);
+			void Set_16(void);
+			void Set_32(void);
+			void Set_64(void);
+			void Set_128(void);
 		}	
 		// end ADC control and status register A
 		
@@ -1203,122 +662,38 @@ namespace MCU
 		
 		namespace Trigger_Source
 		{
-			static void Free_running(void)
-			{
-				uint8_t config_byte = ADCSRB_::Get();
-				config_byte &= ~((1<<2)|(1<<1)|(1<<0));
-				ADCSRB_::Set(config_byte);
-			}
-			
-			static void AC_(void)
-			{
-				uint8_t config_byte = ADCSRB_::Get();
-				config_byte &= ~((1<<2)|(1<<1));
-				config_byte |= (1<<0);
-				ADCSRB_::Set(config_byte);
-			}
-			
-			static void EXINT0_(void)
-			{
-				uint8_t config_byte = ADCSRB_::Get();
-				config_byte &= ~((1<<2)|(1<<0));
-				config_byte |= (1<<1);
-				ADCSRB_::Set(config_byte);
-			}
-			
-			static void TC0_Comp_Match_A(void)
-			{
-				uint8_t config_byte = ADCSRB_::Get();
-				config_byte &= ~(1<<2);
-				config_byte |= ((1<<1)|(1<<0));
-				ADCSRB_::Set(config_byte);
-			}
-			
-			static void TC0_Overflow(void)
-			{
-				uint8_t config_byte = ADCSRB_::Get();
-				config_byte &= ~((1<<1)|(1<<0));
-				config_byte |= (1<<2);
-				ADCSRB_::Set(config_byte);
-			}
-			
-			static void TC1_Comp_Match_B(void)
-			{
-				uint8_t config_byte = ADCSRB_::Get();
-				config_byte &= ~(1<<1);
-				config_byte |= ((1<<2)|(1<<0));
-				ADCSRB_::Set(config_byte);
-			}
-			
-			static void TC1_Overflow(void)
-			{
-				uint8_t config_byte = ADCSRB_::Get();
-				config_byte &= ~(1<<0);
-				config_byte |= ((1<<2)|(1<<1));
-				ADCSRB_::Set(config_byte);
-			}
-			
-			static void TC1_Capture_Event(void)
-			{
-				uint8_t config_byte = ADCSRB_::Get();
-				config_byte |= ((1<<2)|(1<<1)|(1<<0));
-				ADCSRB_::Set(config_byte);
-			}
+			void Free_running(void);
+			void AC_(void);
+			void EXINT0_(void);
+			void TC0_Comp_Match_A(void);
+			void TC0_Overflow(void);
+			void TC1_Comp_Match_B(void);
+			void TC1_Overflow(void);
+			void TC1_Capture_Event(void);
 		}
-		
 		// end ADC control and status register B
 		
 		//ADC data registers
 		struct ADCL_ : public RegisterBase<0x78e> {};
 		struct ADCH_ : public RegisterBase<0x79> {};
 		
-		static uint16_t Get_Value(void)
-		{
-			while(!Is_Conversion_Running());
-			uint8_t low_byte = ADCL_::Get();
-			uint8_t high_byte = ADCH_::Get();
-			uint16_t value = 0;
-			if(! (Adjust_Result::is_Result_Left_Adjusted()))
-			{
-				value |= (high_byte<<8)|(low_byte);
-			}
-			else {value |= (high_byte<<14)|(low_byte<<6);}
-			return value;
-		}
-		
+		 uint16_t Get_Value(void);
 		// end ADC data registers
 		
 		//Digital input disable register 0
 		struct DIDR0_ : public RegisterBase<0x7e> {};
 		
-		static void digital_Input_Disable(uint8_t adc_pin_number)
-		{
-			if ((adc_pin_number >= 0) && (adc_pin_number <= 5))
-			{
-				DIDR0_::SetBit(adc_pin_number);
-			}
-			else return;
-		}
-		
-		static void digital_Input_Enable(uint8_t adc_pin_number)
-		{
-			if ((adc_pin_number >= 0) && (adc_pin_number <= 5))
-			{
-				DIDR0_::ClearBit(adc_pin_number);
-			}
-			else return;
-		}
+		void digital_Input_Disable(uint8_t adc_pin_number);
+		void digital_Input_Enable(uint8_t adc_pin_number);
 		// end Digital input disable register 0
 
 		//ADC power management
-		static void ADC_powerUp(void){Core::PRR_::ClearBit(0);}
-		static void ADC_powerDown(void){Core::PRR_::SetBit(0);}
+		void powerUp(void);
+		void powerDown(void);
 		//end ADC power management
-		
 	}// end Analog to digital converter
 	
-	//EEPROM
-	namespace EEPROM_
+	namespace EEPROM_ //EEPROM
 	{
 		// EEPROM address register high
 		struct EEARH_ : public RegisterBase<0x42e> {};
@@ -1338,9 +713,7 @@ namespace MCU
 				
 	}// end EEPROM
 
-	
-	//Self_programming
-	namespace Self_programming
+	namespace Self_programming //Self_programming
 	{
 		//Store program memory control and status register
 		struct SPMCSR_ : public RegisterBase<0x57> {};

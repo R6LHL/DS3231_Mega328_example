@@ -1,5 +1,6 @@
 #include "variables.hpp"
 #include "Tasks.hpp"
+#include <MCU_Mega_328.hpp>
 
 TaskManager5 OS;
 
@@ -19,8 +20,8 @@ void setup() {
   MCU::IO_::PORTD_::pullupAll();
 
   MCU::SPI_::powerDown();
-  MCU::USART_::USART0_powerDown();
-  MCU::ADC_::ADC_powerDown();
+  MCU::USART_::powerDown();
+  //MCU::ADC_::ADC_powerDown();
   MCU::TC0_::powerDown();
   MCU::TC1_::powerDown();
   MCU::TC2_::powerDown();
