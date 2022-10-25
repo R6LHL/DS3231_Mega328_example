@@ -21,4 +21,8 @@ const uint8_t button_check_period_ts = (uint8_t)(48 / os_min_timeslot_ms);
 //Встроенный светодиод
 const uint8_t led_on_period_ts = (uint8_t)(500 / os_min_timeslot_ms);
 const uint8_t led_off_period_ts = (uint8_t)(500 / os_min_timeslot_ms);
+
+//Настройки буферов
+const uint8_t twi_buffer_size = 8;
+
 #endif //CONFIG_HPP

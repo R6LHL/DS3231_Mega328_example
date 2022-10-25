@@ -4,6 +4,7 @@
 #include <RegisterBase.hpp>
 #include <IO_port_basic.hpp>
 #include <avr/interrupt.h>
+#include <Buffer.hpp>
 
 // Atmega328 MicroController Unit 
 namespace MCU
@@ -110,6 +111,8 @@ namespace MCU
 		inline void cli(void) {asm volatile ("cli");}
 		inline void sei(void) {asm volatile ("sei");}
 		*/
+
+		void powerDown_All_Peripherials(void);
 		
 	}// end MCU core control registers
 		
@@ -536,14 +539,6 @@ namespace MCU
 	
 	namespace TWI_ // Two-wire interface
 	{	
-		enum Error
-		{
-			no_error,
-			start_not_transmitted,
-		};
-
-		uint8_t error;
-
 		//TWI Bit rate register
 		struct TWBR_ : public RegisterBase<0xb8> {};
 		// end TWI Bit rate register
@@ -562,34 +557,34 @@ namespace MCU
 			static const uint8_t status_mask = 0b11111100;
 
 			//Master transmitter mode
-			static const uint8_t START_t = 			0x08;
-			static const uint8_t REP_START_t = 		0x10;
-			static const uint8_t SLAW_t_ACK_r = 	0x18;
-			static const uint8_t SLAW_t_NACK_r = 	0x20;
-			static const uint8_t DATA_t_ACK_r = 	0x28;
-			static const uint8_t DATA_t_NACK_r = 	0x30;
-			static const uint8_t ARBIT_lost = 		0x38;
+			static const uint8_t START_t = 				0x08;
+			static const uint8_t REP_START_t = 			0x10;
+			static const uint8_t MT_SLAW_t_ACK_r = 		0x18;
+			static const uint8_t MT_SLAW_t_NACK_r = 	0x20;
+			static const uint8_t MT_DATA_t_ACK_r = 		0x28;
+			static const uint8_t MT_DATA_t_NACK_r = 	0x30;
+			static const uint8_t MT_ARBIT_lost = 		0x38;
 			//Master receiver mode
-			static const uint8_t SLAR_t_ACK_r = 	0x40;
-			static const uint8_t SLAR_t_NACK_r = 	0x48;
-			static const uint8_t DATA_r_ACK_t = 	0x50;
-			static const uint8_t DATA_r_NACK_t = 	0x58;
+			static const uint8_t MR_SLAR_t_ACK_r = 		0x40;
+			static const uint8_t MR_SLAR_t_NACK_r = 	0x48;
+			static const uint8_t MR_DATA_r_ACK_t = 		0x50;
+			static const uint8_t MR_DATA_r_NACK_t = 	0x58;
 			//Slave transmitter mode
-			static const uint8_t Own_SLAR_r_ACK_t = 0xa8;
-			static const uint8_t ARBIT_Lost_Own_SLAR_r_ACK_t = 0xb0;
-			static const uint8_t DATA_t_ACK_r = 	0xb8;
-			static const uint8_t DATA_t_NACK_r = 	0xc0;
-			static const uint8_t Last_DATA_t_ACK_r = 	0xc8;
+			static const uint8_t ST_Own_SLAR_r_ACK_t = 				0xa8;
+			static const uint8_t ST_ARBIT_Lost_Own_SLAR_r_ACK_t = 	0xb0;
+			static const uint8_t ST_DATA_t_ACK_r = 					0xb8;
+			static const uint8_t ST_DATA_t_NACK_r = 				0xc0;
+			static const uint8_t ST_Last_DATA_t_ACK_r = 			0xc8;
 			//Slave receiver mode
-			static const uint8_t OwnSLAW_r_ACK_t = 	0x60;
-			static const uint8_t ARBIT_Lost_Own_SLAW_r_ACK_t = 0x68;
-			static const uint8_t General_call_r_ACK_t = 0x70;
-			static const uint8_t ARBIT_Lost_General_call_r_ACK_t = 0x78;
-			static const uint8_t PrevAdd_own_SLAW_Data_r_ACK_t = 0x80;
-			static const uint8_t PrevAdd_own_SLAW_Data_r_NACK_t = 0x88;
-			static const uint8_t PrevAdd_Gen_call_DATA_r_ACK_t = 0x90;
-			static const uint8_t PrevAdd_Gen_call_DATA_r_NACK_t = 0x98;
-			static const uint8_t STOP_or_REP_START_r = 0xa0;
+			static const uint8_t SR_OwnSLAW_r_ACK_t = 					0x60;
+			static const uint8_t SR_ARBIT_Lost_Own_SLAW_r_ACK_t = 		0x68;
+			static const uint8_t SR_General_call_r_ACK_t = 				0x70;
+			static const uint8_t SR_ARBIT_Lost_General_call_r_ACK_t =	0x78;
+			static const uint8_t SR_PrevAdd_own_SLAW_Data_r_ACK_t =		0x80;
+			static const uint8_t SR_PrevAdd_own_SLAW_Data_r_NACK_t = 	0x88;
+			static const uint8_t SR_PrevAdd_Gen_call_DATA_r_ACK_t = 	0x90;
+			static const uint8_t SR_PrevAdd_Gen_call_DATA_r_NACK_t = 	0x98;
+			static const uint8_t STOP_or_REP_START_r = 					0xa0;
 		};
 		// end TWI status register
 		
@@ -602,8 +597,6 @@ namespace MCU
 			static const uint8_t b_TWGCE = 0;
 		};
 		// end TWI(slave) address register
-		
-		void set_slave_address(uint8_t slave_address);
 
 		//TWI data register
 		struct TWDR_ : public RegisterBase<0xbb> {};
@@ -629,6 +622,22 @@ namespace MCU
 		};
 		//end TWI(slave) address mask register
 
+		enum Error
+		{
+			NO_ERROR,
+			NO_START,
+
+			MT_SLAW_t_NACK_r,
+			MT_DATA_t_NACK_r,
+			MT_ARBIT_LOST,
+
+			MR_ARBIT_LOST,
+			MR_SLAR_t_NACK_r,
+			MR_DATA_t_NACK_r,
+		};
+
+		extern uint8_t error;
+
 		//TWI power management
 		 void powerUp(void);
 		 void powerDown(void);
@@ -641,9 +650,11 @@ namespace MCU
 		 uint8_t get_prescaler(void);
 	
 		//Send start condition
-		void send_start(void);
-		void check_start(void);
+		void send_Start(void);
 		void send_SLA_W(uint8_t slave_address);
+		void send_SLA_R(uint8_t slave_address);
+		void send_Data_byte(uint8_t data_byte);
+		void send_Stop(void);
 
 				
 		// TWI bitrate prescaler
@@ -665,7 +676,10 @@ namespace MCU
 		*/
 		
 		//Analog comparator control and status register
-		struct ACSR_ : public RegisterBase<0x50> {};
+		struct ACSR_ : public RegisterBase<0x50> 
+		{
+			static const uint8_t ACD_= 7;
+		};
 		// end Analog comparator control and status register
 		
 		//Digital input disable register 1
@@ -674,6 +688,8 @@ namespace MCU
 	 	void digital_Input_Enable(uint8_t ac_pin_number);
 		void digital_Input_Disable(uint8_t ac_pin_number);
 		// end Digital input disable register 1
+
+		void powerDown(void);
 				
 	}// end Analog comparator
 	

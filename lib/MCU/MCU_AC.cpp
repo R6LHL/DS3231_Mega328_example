@@ -17,3 +17,8 @@ void MCU::AC_::digital_Input_Disable(uint8_t ac_pin_number)
 	}
     	else return;
 }
+
+void MCU::AC_::powerDown(void)
+{
+	ACSR_::SetBit(ACSR_::ACD_);
+}

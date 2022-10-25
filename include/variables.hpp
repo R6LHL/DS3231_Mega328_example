@@ -5,18 +5,21 @@
 #include <Arduino.h>
 
 #include <TaskManager.hpp>
+#include <Buffer.hpp>
 
 #include "config.hpp"
 
-extern uint8_t some_var;
 typedef TaskManager<task_queue_size> TaskManager5;
 extern TaskManager5 OS;
 
-uint8_t day;
-uint8_t month;
-uint16_t year;
+typedef Buffer<twi_buffer_size> Buffer8;
+extern Buffer8 twi_buffer;
 
-uint8_t hour;
-uint8_t minute;
+extern uint8_t day;
+extern uint8_t month;
+extern uint16_t year;
+
+extern uint8_t hour;
+extern uint8_t minute;
 
 #endif //VARIABLES_HPP_

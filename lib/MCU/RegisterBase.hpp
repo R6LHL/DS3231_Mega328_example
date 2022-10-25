@@ -18,29 +18,36 @@ struct RegisterBase
 	{
 		return *reinterpret_cast<volatile uint8_t *>(address) ;
 	}
-  
+	
 	static bool GetBit(uint8_t bit_number)
 	{
-		uint8_t byte_ = *reinterpret_cast<volatile uint8_t *>(address) ;
+		uint8_t byte_ = Get();
 		uint8_t mask = 0;
 		mask = 1 << bit_number;
 		byte_ &= mask;
-		byte_ >>= (bit_number - 1);
+		byte_ >>= (bit_number);
 		return byte_;
 	}
+	
 
 	static void SetBit (uint8_t bit_number)
 	{
+		
 		uint8_t byte_ = Get();
 		byte_ |= (1<<bit_number);
 		Set(byte_);
+		
+		//(*(volatile uint8_t *)(address)) |= (1<<bit_number);
 	}
 
 	static void ClearBit (uint8_t bit_number)
 	{
+		
 		uint8_t byte_ = Get();
 		byte_ &= ~(1<<bit_number);
 		Set(byte_);
+		
+		//(*(volatile uint8_t *)(address)) &= ~(1<<bit_number);
 	}
 };
 
