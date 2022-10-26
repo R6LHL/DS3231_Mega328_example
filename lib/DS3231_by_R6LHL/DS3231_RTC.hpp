@@ -2,8 +2,9 @@
 #define DS3231_RTC_BASIC_HPP
 
 #include <avr/io.h>
+#include <MCU_Mega_328.hpp>
 
-namespace DS3231_RTC_BASIC
+namespace DS3231_RTC
 {
     static const uint8_t i2c_address = 0b11010000;
     
@@ -13,9 +14,14 @@ namespace DS3231_RTC_BASIC
 
         static const uint8_t sec_10_mask =  0b01110000;
         static const uint8_t sec_mask =     0b00001111;
+        static const uint8_t sec_10_shift = 4;
 
         static const uint8_t seconds_min = 0;
         static const uint8_t seconds_max = 59;
+
+        uint8_t value;
+
+        void get_Value(void);
     };
 
     struct Minutes
@@ -24,9 +30,14 @@ namespace DS3231_RTC_BASIC
 
         static const uint8_t mins_10_mask = 0b01110000;
         static const uint8_t mins_mask =    0b00001111;
+        static const uint8_t mins_10_shift = 4;
 
         static const uint8_t minutes_min = 0;
         static const uint8_t minutes_max = 59;
+
+        uint8_t value;
+
+        void get_Value(void);
     };
 
     struct Hours
@@ -43,6 +54,10 @@ namespace DS3231_RTC_BASIC
         static const uint8_t hours24_min = 0;
         static const uint8_t hours_12_max = 12;
         static const uint8_t hours_24_max = 23;
+
+        uint8_t value;
+
+        void get_Value(void);
     };
 
     struct Day

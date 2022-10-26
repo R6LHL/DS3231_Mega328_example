@@ -107,7 +107,10 @@ void MCU::TWI_::send_Data_byte(uint8_t data_byte)
 {
 	if(error != Error::NO_ERROR) return;
 	{
+		uint8_t byte_ = TWCR_::Get();
 		TWDR_::Set(data_byte);
+		byte_ |= (1<<TWCR_::b_TWINT)|(1<<TWCR_::b_TWEN); // start transmission SLA_R
+		TWCR_::Set(byte_);
 		
 		while (!(TWCR_::GetBit(TWCR_::b_TWINT))); //while TWINT == 0
 
@@ -119,7 +122,7 @@ void MCU::TWI_::send_Data_byte(uint8_t data_byte)
 void MCU::TWI_::send_Stop(void)
 {
     uint8_t byte_ = TWCR_::Get();
-	byte_ |= (1<<TWCR_::b_TWINT)|(1<<TWCR_::b_TWSTA)|(1<<TWCR_::b_TWEN);
+	byte_ |= (1<<TWCR_::b_TWINT)|(1<<TWCR_::b_TWSTO)|(1<<TWCR_::b_TWEN);
 	TWCR_::Set(byte_);
 	
     while (!(TWCR_::GetBit(TWCR_::b_TWINT))); //while TWINT == 0
@@ -128,6 +131,21 @@ void MCU::TWI_::send_Stop(void)
 	
 }
 
+void MCU::TWI_::send_Byte(uint8_t ad, uint8_t b)
+{
+	send_Start();
+	send_SLA_W(ad);
+	send_Data_byte(b);
+	send_Stop();
+}
+
+uint8_t MCU::TWI_::read_Byte(uint8_t ad)
+{
+	send_Start();
+	send_SLA_R(ad);
+	send_Stop();
+	return TWDR_::Get();
+}
 /* !!!Как вариант!!!
 #pragma vector = TWI_vect
 SIGNAL(TWI_vect)

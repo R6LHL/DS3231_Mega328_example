@@ -648,14 +648,15 @@ namespace MCU
 
 		//Get TWI prescaler
 		 uint8_t get_prescaler(void);
-	
-		//Send start condition
+		
 		void send_Start(void);
 		void send_SLA_W(uint8_t slave_address);
 		void send_SLA_R(uint8_t slave_address);
 		void send_Data_byte(uint8_t data_byte);
 		void send_Stop(void);
 
+		void send_Byte(uint8_t address, uint8_t data_byte);
+		uint8_t read_Byte(uint8_t address);
 				
 		// TWI bitrate prescaler
 		namespace Prescaler
