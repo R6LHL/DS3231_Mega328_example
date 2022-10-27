@@ -6,7 +6,7 @@
 template<uint32_t address>
 struct RegisterBase
 {
-	static constexpr auto Addr = address ;
+	static constexpr auto Addr = address;
 	
 	inline static void Set(uint8_t value)
 	{
