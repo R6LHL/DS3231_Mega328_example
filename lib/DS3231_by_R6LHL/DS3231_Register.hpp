@@ -6,7 +6,7 @@
 
 template <uint8_t addr>
 struct DS3231_Register
-{
+{   
     static const uint8_t i2c_address = 0b11010000;
     static const uint8_t address = addr;
 
