@@ -6,10 +6,9 @@
 #include <avr/interrupt.h>
 #include <Buffer.hpp>
 
-// Atmega328 MicroController Unit 
+// Atmega328 MicroController Unit
 namespace MCU
 {
-		
 	namespace IO_ //IO_ports
 	{
 		struct PORTB_ : public IO_port_basic<0x23, 0x24, 0x25> {};
@@ -802,7 +801,7 @@ namespace MCU
 		//end Store program memory control and status register
 		
 	} //end Self_programming
-}
+};
 // Atmega328 MicroController Unit 
 
 #endif //_MCU_Mega328_HPP
