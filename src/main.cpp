@@ -25,6 +25,8 @@ void setup() {
   MCU::USART_::powerUp();
   MCU::TWI_::powerUp();
 
+  MCU::TWI_::TWBR_::Set(72); // scl 100 kHz
+
   //Watchdog setup for TaskManager
   MCU::Watchdog::System_reset_disable();
   MCU::Watchdog::Prescaler::set_2048();
@@ -33,13 +35,17 @@ void setup() {
 
   //Sleep mode setup
   MCU::Sleep_::Mode::PowerDown();
-  #endif //MCU_Mega328_HPP
 
-  /*
-  #ifdef BUFFER_HPP
-  twi_buffer.flush();
-  #endif // BUFFER_HPP
-  */
+    #ifdef DS3231_RTC_HPP //RTC Setup
+
+    DS3231_RTC::Control::disable_BBSQW();
+    DS3231_RTC::Control::disable_EOSC();
+    DS3231_RTC::Control::enable_INT();
+    DS3231_RTC::Control_Status::disable_32kHz();
+    
+    #endif //DS3231_RTC_HPP
+
+  #endif //MCU_Mega328_HPP
 
   #ifdef TASKMANAGER_HPP
   OS.SetTask_(led_on, led_on_period_ts);

@@ -49,7 +49,7 @@ uint8_t DS3231_RTC::Hours::get_Value(void)
         hours10 >>= hours_12_shift;
     }
 
-    hours10 = hours * 10;
+    hours10 = hours10 * 10;
     hours = raw_byte & hours_mask;
 
     return hours10 + hours;
@@ -151,7 +151,7 @@ uint8_t DS3231_RTC::Alarm1Hours::get_Value()
         hours10 >>= hours_12_shift;
     }
 
-    hours10 = hours * 10;
+    hours10 = hours10 * 10;
     hours = raw_byte & hours_mask;
 
     return hours10 + hours;
@@ -210,7 +210,7 @@ uint8_t DS3231_RTC::Alarm2Hours::get_Value()
         hours10 >>= hours_12_shift;
     }
 
-    hours10 = hours * 10;
+    hours10 = hours10 * 10;
     hours = raw_byte & hours_mask;
 
     return hours10 + hours;
@@ -346,6 +346,65 @@ uint8_t DS3231_RTC::Control::get_config(void)
     return (uint8_t)get_RAW_Byte();
 }
 
+void DS3231_RTC::Control_Status::enable_32kHz()
+{
+    uint8_t raw_byte = get_RAW_Byte();
+    raw_byte |= (1<<b_EN32kHZ);
+    send_Byte(address, raw_byte);
+}
+
+void DS3231_RTC::Control_Status::disable_32kHz()
+{
+    uint8_t raw_byte = get_RAW_Byte();
+    raw_byte &= ~(1<<b_EN32kHZ);
+    send_Byte(address, raw_byte);
+}
+
+bool DS3231_RTC::Control_Status::is_BUSY(void)
+{
+    uint8_t raw_byte = get_RAW_Byte();
+    raw_byte &= BSY_mask;
+    return raw_byte;
+}
+        
+bool DS3231_RTC::Control_Status::is_Alarm1_Event(void)
+{
+    uint8_t raw_byte = get_RAW_Byte();
+    raw_byte &= A1F_mask;
+    return raw_byte; 
+}
+
+bool DS3231_RTC::Control_Status::is_Alarm2_Event(void)
+{
+    uint8_t raw_byte = get_RAW_Byte();
+    raw_byte &= A2F_mask;
+    return raw_byte;
+}
+
+void DS3231_RTC::Control_Status::clear_Alarm1_Event(void)
+{
+    uint8_t raw_byte = get_RAW_Byte();
+    raw_byte &= ~(1<<b_A1F);
+    send_Byte(address, raw_byte);
+}
+
+void DS3231_RTC::Control_Status::clear_Alarm2_Event(void)
+{
+    uint8_t raw_byte = get_RAW_Byte();
+    raw_byte &= ~(1<<b_A2F);
+    send_Byte(address, raw_byte);
+}
+
+void DS3231_RTC::Control_Status::set_config(uint8_t conf)
+{
+     send_Byte(address, conf);
+}
+
+uint8_t DS3231_RTC::Control_Status::get_config(void)
+{
+    return (uint8_t)get_RAW_Byte();
+}
+
 int8_t DS3231_RTC::Aging_offset::get_Value()
 {
     return (int8_t)get_RAW_Byte();
@@ -354,11 +413,9 @@ int8_t DS3231_RTC::Aging_offset::get_Value()
 int8_t DS3231_RTC::MSB_of_temp::get_Value()
 {
     return (int8_t)get_RAW_Byte();
-
 }
 
 uint8_t DS3231_RTC::LSB_of_temp::get_Value()
 {
-    uint8_t raw_byte = get_RAW_Byte();
-
+    return (uint8_t)get_RAW_Byte();
 }

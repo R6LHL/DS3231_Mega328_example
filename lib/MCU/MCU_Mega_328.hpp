@@ -1,9 +1,12 @@
 #ifndef MCU_Mega328_HPP
 #define MCU_Mega328_HPP
 
+#include <avr/io.h>
+#include <avr/interrupt.h>
+#include <math.h>
+
 #include <RegisterBase.hpp>
 #include <IO_port_basic.hpp>
-#include <avr/interrupt.h>
 #include <Buffer.hpp>
 
 // Atmega328 MicroController Unit
@@ -539,7 +542,11 @@ namespace MCU
 	namespace TWI_ // Two-wire interface
 	{	
 		//TWI Bit rate register
-		struct TWBR_ : public RegisterBase<0xb8> {};
+		struct TWBR_ : public RegisterBase<0xb8> 
+		{
+			//TWBR = ((F_cpu/F_scl) - 16)/(2*4^TWPS)
+
+		};
 		// end TWI Bit rate register
 		
 		//TWI status register
@@ -635,7 +642,7 @@ namespace MCU
 			MR_DATA_t_NACK_r,
 		};
 
-		extern uint8_t error;
+		static uint8_t error = Error::NO_ERROR;
 
 		//TWI power management
 		 void powerUp(void);
@@ -645,9 +652,21 @@ namespace MCU
 		//Get TWI Status
 		 uint8_t get_status(void);
 
-		//Get TWI prescaler
-		 uint8_t get_prescaler(void);
+		// TWI bitrate prescaler
+		namespace Prescaler
+		{
+			void Set_1(void);
+			void Set_4(void);	
+			void Set_16(void);
+			void Set_64(void);
+		} // end TWI bitrate prescaler
 		
+		//Get TWI prescaler
+		uint8_t get_prescaler(void);
+
+		void set_ACK_enabled(void);
+		void set_ACK_disabled(void);
+
 		void send_Start(void);
 		void send_SLA_W(uint8_t slave_address);
 		void send_SLA_R(uint8_t slave_address);
@@ -655,18 +674,9 @@ namespace MCU
 		void send_Stop(void);
 
 		void send_Byte(uint8_t dev_addr, uint8_t data_byte);
-		void send_Reg_Byte(uint8_t dev_add, uint8_t reg_addr ,uint8_t data_byte);
+		void send_Reg_Byte(uint8_t dev_add, uint8_t reg_addr, uint8_t data_byte);
 
 		uint8_t read_Byte(uint8_t address);
-				
-		// TWI bitrate prescaler
-		namespace Prescaler
-		{
-			 void Set_1(void);
-			 void Set_4(void);	
-			 void Set_16(void);
-			 void Set_64(void);
-		} // end TWI bitrate prescaler
 	}// end Two-wire interface
 	
 	namespace AC_ //Analog comparator

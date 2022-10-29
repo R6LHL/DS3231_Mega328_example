@@ -7,6 +7,8 @@
 #include <TaskManager.hpp>
 #include <Buffer.hpp>
 
+#include <DS3231_RTC.hpp>
+
 #include "config.hpp"
 
 typedef TaskManager<task_queue_size> TaskManager5;

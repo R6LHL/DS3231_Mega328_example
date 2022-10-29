@@ -1,10 +1,10 @@
-#ifndef DS3231_RTC_BASIC_HPP
-#define DS3231_RTC_BASIC_HPP
+#ifndef DS3231_RTC_HPP
+#define DS3231_RTC_HPP
 
 #include <DS3231_Register.hpp>
 
-typedef bit_number const uint8_t;
-typedef bit_mask const uint8_t;
+typedef const unsigned char bit_number;
+typedef const unsigned char bit_mask;
 
 namespace DS3231_RTC
 {  
@@ -51,16 +51,16 @@ namespace DS3231_RTC
         static const uint8_t hours_24_shift = 3;
         static const uint8_t hours_12_shift = 3;
 
-        const uint8_t hours12_min = 1;
-        const uint8_t hours24_min = 0;
-        const uint8_t hours_12_max = 12;
-        const uint8_t hours_24_max = 23;
-        const uint8_t hours_error = 24;
+        static const uint8_t hours12_min = 1;
+        static const uint8_t hours24_min = 0;
+        static const uint8_t hours_12_max = 12;
+        static const uint8_t hours_24_max = 23;
+        static const uint8_t hours_error = 24;
 
-        bool is_pm;
+        static bool is_pm;
         
-        uint8_t get_Value(void);
-        void set_Value(bool set24, bool set_pm, uint8_t hours);
+        static uint8_t get_Value(void);
+        static void set_Value(bool set24, bool set_pm, uint8_t hours);
     };
 
     struct Day : public DS3231_Register<0x03>
@@ -239,12 +239,12 @@ namespace DS3231_RTC
         static const uint8_t hours_12_max = 12;
         static const uint8_t hours_24_max = 23;
 
-        bool is_pm;
-        bool is_a2m3_set;
+        static bool is_pm;
+        static bool is_a2m3_set;
 
-        uint8_t get_Value(void);
-        void set_Day(bool a2m3, uint8_t day);
-        void set_Date(bool a2m3, uint8_t date);
+        static uint8_t get_Value(void);
+        static void set_Day(bool a2m3, uint8_t day);
+        static void set_Date(bool a2m3, uint8_t date);
     };
 
     struct Alarm2Day_Date : public DS3231_Register<0x0d>
@@ -262,12 +262,12 @@ namespace DS3231_RTC
         static const uint8_t date_min = 1;
         static const uint8_t date_max = 31;
 
-        bool is_date;
-        bool is_a2m4_set;
+        static bool is_date;
+        static bool is_a2m4_set;
 
-        uint8_t get_Value(void);
-        void set_Day(bool a2m4, uint8_t day);
-        void set_Date(bool a2m4, uint8_t date);
+        static uint8_t get_Value(void);
+        static void set_Day(bool a2m4, uint8_t day);
+        static void set_Date(bool a2m4, uint8_t date);
     };
 
     struct Control : public DS3231_Register<0x0e>
@@ -289,30 +289,30 @@ namespace DS3231_RTC
         static bit_number b_A2IE =         1;
         static bit_number b_A1IE =         0;
 
-        void enable_EOSC(void);
-        void disable_EOSC(void);
+        static void enable_EOSC(void);
+        static void disable_EOSC(void);
         
-        void enable_BBSQW(void);
-        void disable_BBSQW(void);
+        static void enable_BBSQW(void);
+        static void disable_BBSQW(void);
 
-        void start_temp_CONV(void);
+        static void start_temp_CONV(void);
 
-        void set_SQW_Rate_1Hz(void);
-        void set_SQW_Rate_1024Hz(void);
-        void set_SQW_Rate_4096Hz(void);
-        void set_SQW_Rate_8132Hz(void);
+        static void set_SQW_Rate_1Hz(void);
+        static void set_SQW_Rate_1024Hz(void);
+        static void set_SQW_Rate_4096Hz(void);
+        static void set_SQW_Rate_8132Hz(void);
 
-        void enable_INT(void);
-        void enable_SQW(void);
+        static void enable_INT(void);
+        static void enable_SQW(void);
 
-        void enable_A1_INT(void);
-        void enable_A2_INT(void);
+        static void enable_A1_INT(void);
+        static void enable_A2_INT(void);
 
-        void disable_A1_INT(void);
-        void disable_A2_INT(void);
+        static void disable_A1_INT(void);
+        static void disable_A2_INT(void);
 
-        void set_config(uint8_t conf);
-        uint8_t get_config(void);
+        static void set_config(uint8_t conf);
+        static uint8_t get_config(void);
     };
 
     struct Control_Status : public DS3231_Register<0x0f>
@@ -328,26 +328,29 @@ namespace DS3231_RTC
         static bit_number b_BSY = 2;
         static bit_number b_A2F = 1;
         static bit_number b_A1F = 0;
-
-        void enable_32kHz(void);
-        void disable_32kHz(void);
-
-        bool is_BUSY(void);
         
-        bool is_Alarm1_Event(void);
-        bool is_Alarm2_Event(void);
+        static void enable_32kHz(void);
+        static void disable_32kHz(void);
 
-        bool clear_Alarm1_Event(void);
-        bool clear_Alarm2_Event(void);
+        static bool is_BUSY(void);
+        
+        static bool is_Alarm1_Event(void);
+        static bool is_Alarm2_Event(void);
 
-        void set_each_second_match(void);
-        void set_sec_match(void);
-        void set_min_sec_match(void);
-        void set_hour_min_sec_match(void);
-        void set_day_hour_min_sec_match(void);
+        static void clear_Alarm1_Event(void);
+        static void clear_Alarm2_Event(void);
 
-        void set_config(uint8_t);
-        uint8_t get_config(uint8_t);
+        /*
+        static void set_each_second_match(void);
+        static void set_sec_match(void);
+        static void set_min_sec_match(void);
+        static void set_hour_min_sec_match(void);
+        static void set_day_hour_min_sec_match(void);
+        */
+
+        static void set_config(uint8_t);
+        static uint8_t get_config(void);
+        
     };
 
     struct Aging_offset : public DS3231_Register<0x10>

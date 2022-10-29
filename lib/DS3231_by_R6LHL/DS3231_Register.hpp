@@ -7,7 +7,7 @@
 template <uint8_t addr>
 struct DS3231_Register
 {   
-    static const uint8_t i2c_address = 0b11010000;
+    static const uint8_t i2c_address = 0b11010000; //0x68
     static const uint8_t address = addr;
 
     static const uint8_t error = 60;
@@ -20,12 +20,13 @@ struct DS3231_Register
         {
             uint8_t raw_byte;
             raw_byte = MCU::TWI_::read_Byte(i2c_address);
+            MCU::TWI_::send_Stop();
             if (MCU::TWI_::error != MCU::TWI_::Error::NO_ERROR) return error;
             else return raw_byte;
         }
     }
 
-    static void send_Byte(uint reg_addr, uint_8t byte_)
+    static void send_Byte(uint8_t reg_addr, uint8_t byte_)
     {
         MCU::TWI_::send_Reg_Byte(i2c_address, reg_addr, byte_);
     }
