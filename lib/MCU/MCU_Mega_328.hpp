@@ -654,7 +654,9 @@ namespace MCU
 		void send_Data_byte(uint8_t data_byte);
 		void send_Stop(void);
 
-		void send_Byte(uint8_t address, uint8_t data_byte);
+		void send_Byte(uint8_t dev_addr, uint8_t data_byte);
+		void send_Reg_Byte(uint8_t dev_add, uint8_t reg_addr ,uint8_t data_byte);
+
 		uint8_t read_Byte(uint8_t address);
 				
 		// TWI bitrate prescaler

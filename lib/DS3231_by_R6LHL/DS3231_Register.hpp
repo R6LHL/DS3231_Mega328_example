@@ -24,6 +24,11 @@ struct DS3231_Register
             else return raw_byte;
         }
     }
+
+    static void send_Byte(uint reg_addr, uint_8t byte_)
+    {
+        MCU::TWI_::send_Reg_Byte(i2c_address, reg_addr, byte_);
+    }
 };
 
 #endif //DS3231_REGISTER_HPP

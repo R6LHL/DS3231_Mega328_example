@@ -283,8 +283,8 @@ namespace DS3231_RTC
         static bit_number b_EOSC =         7;
         static bit_number b_BBSQW =        6;
         static bit_number b_CONV =         5;
-        static bit_number b_RS1 =          4;
-        static bit_number b_RS0 =          3;
+        static bit_number b_RS2 =          4;
+        static bit_number b_RS1 =          3;
         static bit_number b_INTCN =        2;
         static bit_number b_A2IE =         1;
         static bit_number b_A1IE =         0;

@@ -139,6 +139,15 @@ void MCU::TWI_::send_Byte(uint8_t ad, uint8_t b)
 	send_Stop();
 }
 
+void MCU::TWI_::send_Reg_Byte(uint8_t ad, uint8_t r_ad ,uint8_t db)
+{
+	send_Start();
+	send_SLA_W(ad);
+	send_Data_byte(r_ad);
+	send_Data_byte(db);
+	send_Stop();
+}
+
 uint8_t MCU::TWI_::read_Byte(uint8_t ad)
 {
 	send_Start();
