@@ -8,59 +8,70 @@ typedef const unsigned char bit_mask;
 
 namespace DS3231_RTC
 {  
-    struct  Seconds : public DS3231_Register<0x00>
-    {      
-        static bit_mask sec_10_mask =  0b01110000;
-        static bit_mask sec_mask =     0b00001111;
+    namespace Seconds
+    {
+        struct Register : public DS3231_Register<0x00>
+        {
+            static bit_mask sec_10_mask =  0b01110000;
+            static bit_mask sec_mask =     0b00001111;
         
-        static bit_number sec_10_shift = 4;
+            static bit_number sec_10_shift = 4;
         
-        static const uint8_t seconds_min = 0;
-        static const uint8_t seconds_max = 59;
-        static const uint8_t seconds_error = 60;
-
+            static const uint8_t seconds_min = 0;
+            static const uint8_t seconds_max = 59;
+            static const uint8_t seconds_error = 60;
+        };
+        
         uint8_t get_Value(void);
         void set_Value(uint8_t seconds);
-    };
-
-    struct Minutes : public DS3231_Register<0x01>
+    }
+    
+    namespace Minutes
     {
-        static bit_mask mins_10_mask = 0b01110000;
-        static bit_mask mins_mask =    0b00001111;
+        struct Register : public DS3231_Register<0x01>
+        {
+            static bit_mask mins_10_mask = 0b01110000;
+            static bit_mask mins_mask =    0b00001111;
 
-        static const uint8_t mins_10_shift = 4;
+            static const uint8_t mins_10_shift = 4;
 
-        static const uint8_t minutes_min = 0;
-        static const uint8_t minutes_max = 59;
-        static const uint8_t minutes_error = 60;
+            static const uint8_t minutes_min = 0;
+            static const uint8_t minutes_max = 59;
+            static const uint8_t minutes_error = 60;
+        };
 
         uint8_t get_Value(void);
         void set_Value(uint8_t minutes);
-    };
+    }
 
-    struct Hours : public DS3231_Register<0x02>
+    namespace Hours
     {
-        static bit_mask c12_24_mask =      0b01000000;
-        static bit_mask am_pm_mask =       0b00100000;
-        static bit_mask hours_24_mask =    0b00110000;
-        static bit_mask hours_12_mask =    0b00010000;
-        static bit_mask hours_mask =       0b00001111;
+        struct Register : public DS3231_Register<0x02>
+        {
+            static bit_mask c12_24_mask =      0b01000000;
+            static bit_mask am_pm_mask =       0b00100000;
+            static bit_mask hours_24_mask =    0b00110000;
+            static bit_mask hours_12_mask =    0b00010000;
+            static bit_mask hours_mask =       0b00001111;
 
-        static const uint8_t c12_24_shift = 6;
-        static const uint8_t am_pm_shift =  5;
-        static const uint8_t hours_24_shift = 3;
-        static const uint8_t hours_12_shift = 3;
+            static const uint8_t c12_24_shift = 6;
+            static const uint8_t am_pm_shift =  5;
+            static const uint8_t hours_24_shift = 3;
+            static const uint8_t hours_12_shift = 3;
 
-        static const uint8_t hours12_min = 1;
-        static const uint8_t hours24_min = 0;
-        static const uint8_t hours_12_max = 12;
-        static const uint8_t hours_24_max = 23;
-        static const uint8_t hours_error = 24;
+            static const uint8_t hours12_min = 1;
+            static const uint8_t hours24_min = 0;
+            static const uint8_t hours_12_max = 12;
+            static const uint8_t hours_24_max = 23;
+            static const uint8_t hours_error = 24;
+        };
 
-        static bool is_pm;
+       //static bool is_pm;
         
-        static uint8_t get_Value(void);
-        static void set_Value(bool set24, bool set_pm, uint8_t hours);
+       uint8_t get_Value(void);
+       void set_Value(bool set24, bool set_pm, uint8_t hours);
+       void set_24_mode(void);
+       void set_12_mode(void);
     };
 
     struct Day : public DS3231_Register<0x03>
@@ -129,6 +140,8 @@ namespace DS3231_RTC
 
         static const uint8_t sec_10_shift = 4;
 
+        static bit_number b_a1m1 = 7;
+
         static const uint8_t seconds_min = 0;
         static const uint8_t seconds_max = 59;
 
@@ -136,6 +149,8 @@ namespace DS3231_RTC
 
         uint8_t get_Value(void);
         void set_Value(bool a1m1_set, uint8_t seconds);
+        void set_a1m1(void);
+        void clear_a1m1(void);
     };
 
     struct Alarm1Minutes : public DS3231_Register<0x08>
@@ -339,14 +354,6 @@ namespace DS3231_RTC
 
         static void clear_Alarm1_Event(void);
         static void clear_Alarm2_Event(void);
-
-        /*
-        static void set_each_second_match(void);
-        static void set_sec_match(void);
-        static void set_min_sec_match(void);
-        static void set_hour_min_sec_match(void);
-        static void set_day_hour_min_sec_match(void);
-        */
 
         static void set_config(uint8_t);
         static uint8_t get_config(void);

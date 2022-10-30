@@ -2,57 +2,80 @@
 
 uint8_t DS3231_RTC::Seconds::get_Value(void)
 {
-    uint8_t raw_byte = get_RAW_Byte();
+    volatile uint8_t raw_byte = Register::get_RAW_Byte();
+      
     uint8_t sec_10;
     uint8_t sec;
 
-    sec_10 = raw_byte & sec_10_mask;
-    sec_10 >>= sec_10_shift;
+    sec_10 = raw_byte & Register::sec_10_mask;
+    sec_10 >>= Register::sec_10_shift;
     sec_10 = sec_10 * 10;
 
-    sec = raw_byte & sec_mask;
+    sec = raw_byte & Register::sec_mask;
     return sec_10 + sec;
+    
+    //return raw_byte;
 }
 
 uint8_t DS3231_RTC::Minutes::get_Value(void)
 {
-    uint8_t raw_byte = get_RAW_Byte();
+    uint8_t raw_byte = Register::get_RAW_Byte();
+    
     uint8_t mins_10;
     uint8_t mins;
 
-    mins_10 = raw_byte & mins_10_mask;
-    mins_10 >>= mins_10_shift;
+    mins_10 = raw_byte & Register::mins_10_mask;
+    mins_10 >>= Register::mins_10_shift;
     mins_10 = mins_10 * 10;
 
-    mins = raw_byte & mins_mask;
+    mins = raw_byte & Register::mins_mask;
     return mins_10 + mins;
+    
+    //return raw_byte;
 }
 
 uint8_t DS3231_RTC::Hours::get_Value(void)
 {
-    uint8_t raw_byte = get_RAW_Byte();
+    uint8_t raw_byte = Register::get_RAW_Byte();
+
     bool c24;
     uint8_t hours10;
     uint8_t hours;
 
-    c24 = raw_byte & c12_24_mask;
-    is_pm = raw_byte & am_pm_mask;
+    c24 = (bool)(raw_byte & Register::c12_24_mask);
+    //DS3231_RTC::Hours::is_pm = (bool)(raw_byte & Register::am_pm_mask);
 
-    if (c24 == true)
+    if (c24 == 1)
     {
-        hours10 = raw_byte & hours_24_mask;
-        hours10 >>= hours_24_shift;
+        hours10 = raw_byte & Register::hours_24_mask;
+        hours10 >>= Register::hours_24_shift;
     }
     else
     {
-        hours10 = raw_byte & hours_12_mask;
-        hours10 >>= hours_12_shift;
+        hours10 = raw_byte & Register::hours_12_mask;
+        hours10 >>= Register::hours_12_shift;
     }
 
     hours10 = hours10 * 10;
-    hours = raw_byte & hours_mask;
+    hours = raw_byte & Register::hours_mask;
 
     return hours10 + hours;
+    
+   //return raw_byte;
+}
+
+void DS3231_RTC::Hours::set_24_mode(void)
+{
+    uint8_t raw_byte = Register::get_RAW_Byte();
+    raw_byte |= (1<<Register::c12_24_shift);
+    Register::send_Byte(Register::address, raw_byte);
+}
+
+void DS3231_RTC::Hours::set_12_mode(void)
+{
+    uint8_t raw_byte = Register::get_RAW_Byte();
+    raw_byte &= ~(1<<Register::c12_24_shift);
+    Register::send_Byte(Register::address, raw_byte);
 }
 
 uint8_t DS3231_RTC::Day::get_Value(void) 
@@ -109,6 +132,20 @@ uint8_t DS3231_RTC::Alarm1Seconds::get_Value()
 
     sec = raw_byte & sec_mask;
     return sec_10 + sec;
+}
+
+void DS3231_RTC::Alarm1Seconds::set_a1m1(void)
+{
+    uint8_t raw_byte = get_RAW_Byte();
+    raw_byte |= (1 << b_a1m1);
+    send_Byte(address, raw_byte);
+}
+
+void DS3231_RTC::Alarm1Seconds::clear_a1m1(void)
+{
+    uint8_t raw_byte = get_RAW_Byte();
+    raw_byte &= ~(1 << b_a1m1);
+    send_Byte(address, raw_byte);
 }
 
 uint8_t DS3231_RTC::Alarm1Minutes::get_Value()

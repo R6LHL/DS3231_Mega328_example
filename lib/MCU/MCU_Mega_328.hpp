@@ -75,7 +75,7 @@ namespace MCU
 		// end Stack pointer register low
 		
 		// MCU control register
-		struct MCUCR_ : public RegisterBase<0x55> {};
+		struct MCUCR_ : public RegisterBase<0x55>{};
 		// end MCU control register
 		
 		// MCU status register - indicates which event is reset occured
@@ -83,7 +83,10 @@ namespace MCU
 		// 0x02 - if external reset
 		// 0x04 - if brown-out reset
 		// 0x08 - if watchdog reset
-		struct MCUSR_ : public RegisterBase<0x54> {};
+		struct MCUSR_ : public RegisterBase<0x54> 
+		{
+			static const uint8_t b_WDRF = 3;
+		};
 		// end MCU status register
 				
 		// Oscillator calibration register

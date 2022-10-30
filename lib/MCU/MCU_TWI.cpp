@@ -56,81 +56,68 @@ void MCU::TWI_::set_ACK_disabled(void)
 void MCU::TWI_::send_Start(void)
 {
 	MCU::TWI_::error = Error::NO_ERROR;
-    uint8_t byte_ = TWCR_::Get();
-	byte_ |= (1<<TWCR_::b_TWINT)|(1<<TWCR_::b_TWSTA)|(1<<TWCR_::b_TWEN);
+    //uint8_t byte_ = TWCR_::Get();
+	uint8_t byte_ = 0;
+	byte_ = (1<<TWCR_::b_TWINT)|(1<<TWCR_::b_TWSTA)|(1<<TWCR_::b_TWEN);
+	//byte_ &= ~(1<<TWCR_::b_TWSTO);
 	TWCR_::Set(byte_);
 	
     while (!(TWCR_::GetBit(TWCR_::b_TWINT))); //while TWINT == 0
-	//Check start condition send
-    if (get_status() != TWSR_::START_t) MCU::TWI_::error = Error::NO_START;
-	
+	//Check start condition sen
 }
 
 void MCU::TWI_::send_SLA_W(uint8_t slave_address)
 {
-    if (MCU::TWI_::error != Error::NO_ERROR) return;
-	else
-	{
-		uint8_t byte_ = slave_address;
-    	byte_ &= ~(1<<0); //set Write mode
-    	TWDR_::Set(byte_);
-		TWDR_::Set(byte_);
-		byte_ = TWCR_::Get();
-		byte_ |= (1<<TWCR_::b_TWINT)|(1<<TWCR_::b_TWEN); // start transmission SLA_W
-		TWCR_::Set(byte_);
-		
-		while (!(TWCR_::GetBit(TWCR_::b_TWINT))); //while TWINT == 0
 
-    	if (get_status() != TWSR_::MT_SLAW_t_ACK_r) MCU::TWI_::error = Error::MT_SLAW_t_NACK_r;
+	uint8_t byte_ = slave_address;
+    byte_ &= ~(1<<0); //set Write mode
+    TWDR_::Set(byte_);
+	//byte_ = TWCR_::Get();
+	byte_ = 0;
+	byte_ = (1<<TWCR_::b_TWINT)|(1<<TWCR_::b_TWEN);
+	//byte_ &= ~(1<<TWCR_::b_TWSTA)|(1<<TWCR_::b_TWSTO); // start transmission SLA_W
+	TWCR_::Set(byte_);
 		
-	}
+	while (!(TWCR_::GetBit(TWCR_::b_TWINT))); //while TWINT == 0
 }
 
 void MCU::TWI_::send_SLA_R(uint8_t slave_address)
 {
-	if (MCU::TWI_::error != Error::NO_ERROR) return;
-	else 
-	{
-		uint8_t byte_ = slave_address;
-    	byte_ |= (1<<0); //set Read mode
-    	TWDR_::Set(byte_);
-		byte_ = TWCR_::Get();
-		byte_ |= (1<<TWCR_::b_TWINT)|(1<<TWCR_::b_TWEN); // start transmission SLA_R
-		TWCR_::Set(byte_);
-		
-		while (!(TWCR_::GetBit(TWCR_::b_TWINT))); //while TWINT == 0
-
-    	if (get_status() != TWSR_::MR_SLAR_t_NACK_r) MCU::TWI_::error = Error::MR_SLAR_t_NACK_r;
-		
-	}
+	uint8_t byte_ = slave_address;
+    byte_ |= (1<<0); //set Read mode
+    TWDR_::Set(byte_);
+	//byte_ = TWCR_::Get();
+	byte_ = (1<<TWCR_::b_TWINT)|(1<<TWCR_::b_TWEN); // start transmission SLA_R
+	//byte_ &= ~(1<<TWCR_::b_TWSTA)|(1<<TWCR_::b_TWSTO)|(1<<TWCR_::b_TWEA);
+	//byte_ &= ~(1<<TWCR_::b_TWSTA)|(1<<TWCR_::b_TWSTO);
+	TWCR_::Set(byte_);
+    //if (get_status() != TWSR_::MR_SLAR_t_NACK_r) MCU::TWI_::error = Error::MR_SLAR_t_NACK_r;
+	while (!(TWCR_::GetBit(TWCR_::b_TWINT))); //while TWINT == 0
 }
 
 void MCU::TWI_::send_Data_byte(uint8_t data_byte)
 {
-	if(MCU::TWI_::error != Error::NO_ERROR) return;
-	{
-		uint8_t byte_ = TWCR_::Get();
-		TWDR_::Set(data_byte);
-		byte_ |= (1<<TWCR_::b_TWINT)|(1<<TWCR_::b_TWEN); // start transmission SLA_R
-		TWCR_::Set(byte_);
-		
-		while (!(TWCR_::GetBit(TWCR_::b_TWINT))); //while TWINT == 0
+	TWDR_::Set(data_byte);
+	//uint8_t byte_ = TWCR_::Get();
+	uint8_t byte_ = 0;
+	byte_ = (1<<TWCR_::b_TWINT)|(1<<TWCR_::b_TWEN); // start transmission SLA_R
+	//byte_ &= ~(1<<TWCR_::b_TWSTA)|(1<<TWCR_::b_TWSTO);
+	TWCR_::Set(byte_);
+	
+	while (!(TWCR_::GetBit(TWCR_::b_TWINT))); //while TWINT == 0
 
-    	if (get_status() != TWSR_::MT_DATA_t_NACK_r) MCU::TWI_::error = Error::MT_DATA_t_NACK_r;
-		
-	}
+    //if (get_status() != TWSR_::MT_DATA_t_NACK_r) MCU::TWI_::error = Error::MT_DATA_t_NACK_r;
 }
 
 void MCU::TWI_::send_Stop(void)
 {
-    uint8_t byte_ = TWCR_::Get();
-	byte_ |= (1<<TWCR_::b_TWINT)|(1<<TWCR_::b_TWSTO)|(1<<TWCR_::b_TWEN);
+    //uint8_t byte_ = TWCR_::Get();
+	uint8_t byte_ = 0;
+	byte_ = (1<<TWCR_::b_TWINT)|(1<<TWCR_::b_TWSTO)|(1<<TWCR_::b_TWEN);
+	//byte_ &= ~(1<<TWCR_::b_TWSTA);
 	TWCR_::Set(byte_);
 	
-    while (!(TWCR_::GetBit(TWCR_::b_TWINT))); //while TWINT == 0
-	//Check start condition send
-    if (get_status() != TWSR_::START_t) MCU::TWI_::error = Error::NO_START;
-	
+    //while (!(TWCR_::GetBit(TWCR_::b_TWINT))); //while TWINT == 0
 }
 
 void MCU::TWI_::send_Byte(uint8_t ad, uint8_t b)

@@ -29,6 +29,7 @@ void MCU::Watchdog::System_reset_enable(void)
 		
 void MCU::Watchdog::System_reset_disable(void)
 {
+	MCU::Core::MCUSR_::ClearBit(MCU::Core::MCUSR_::b_WDRF);
 	Change_Enable();
 	WDTCSR_::ClearBit(WDTCSR_::b_WDE);
 }
@@ -134,8 +135,8 @@ void MCU::Watchdog::Mode::stop(void)
 void MCU::Watchdog::Mode::interrupt(void)
 {
 	uint8_t byte_ = WDTCSR_ ::Get();
-	byte_ &= ~(1<<WDTCSR_::b_WDIE);
-	byte_ |= (1<<WDTCSR_::b_WDE);
+	byte_ &= ~(1<<WDTCSR_::b_WDE);
+	byte_ |= (1<<WDTCSR_::b_WDIE);
 	MCU::Watchdog::Change_Enable();
 	WDTCSR_ ::Set(byte_);
 }

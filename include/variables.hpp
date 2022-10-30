@@ -3,9 +3,9 @@
 
 #include <avr/io.h>
 #include <Arduino.h>
+#include <Wire.h>
 
 #include <TaskManager.hpp>
-#include <Buffer.hpp>
 
 #include <DS3231_RTC.hpp>
 
@@ -14,14 +14,10 @@
 typedef TaskManager<task_queue_size> TaskManager5;
 extern TaskManager5 OS;
 
-typedef Buffer<twi_buffer_size> Buffer8;
-extern Buffer8 twi_buffer;
+//extern DS3231 RTC;
 
-extern uint8_t day;
-extern uint8_t month;
-extern uint16_t year;
-
-extern uint8_t hour;
-extern uint8_t minute;
+//extern bool century;
+//extern bool h12Flag;
+//extern bool pmFlag;
 
 #endif //VARIABLES_HPP_
