@@ -16,8 +16,29 @@ void led_off(void)
 
 void print_Time(void)
 {
-    Serial.print(DS3231_RTC::Minutes::get_Value());
+    uint8_t hours = DS3231_RTC::Hours::get_Value();
+    uint8_t minutes = DS3231_RTC::Minutes::get_Value();
+    uint8_t seconds = DS3231_RTC::Seconds::get_Value();
+
+    if (hours < 10)
+    {
+        Serial.print(F("0"));
+    }
+    Serial.print(hours);
     Serial.print(F(":"));
+
+    if (minutes < 10)
+    {
+        Serial.print(F("0"));
+    }
+    
+    Serial.print(minutes);
+    Serial.print(F(":"));
+
+    if (seconds < 10)
+    {
+        Serial.print(F("0"));
+    }
     Serial.println(DS3231_RTC::Seconds::get_Value());
 
     OS.SetTask_(print_Time, time_print_period_ts);

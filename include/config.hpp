@@ -3,6 +3,7 @@
 
 #include <avr/io.h>
 #include <MCU_Mega_328.hpp>
+#include <build_time.h>
 
 //Task Manager config
 const uint8_t task_queue_size = 5;

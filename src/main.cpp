@@ -32,13 +32,13 @@ void setup() {
   MCU::TWI_::Prescaler::Set_1(); // scl 100 kHz
   //MCU::TWI_::TWCR_::SetBit(MCU::TWI_::TWCR_::b_TWEA);
 
-  Serial.println("Serial is working");
+  //Serial.println("Serial is working");
   //Watchdog setup for TaskManager
   MCU::Watchdog::System_reset_disable();
   MCU::Watchdog::Prescaler::set_2048();
   MCU::Watchdog::Mode::interrupt();
   MCU::Watchdog::Interrupt_Enable();
-  Serial.println("Watchdog is working");
+  //Serial.println("Watchdog is working");
 
   //Sleep mode setup
   //MCU::Sleep_::Mode::PowerDown();
@@ -49,6 +49,16 @@ void setup() {
     DS3231_RTC::Control::disable_EOSC();
     DS3231_RTC::Control::enable_INT();
     DS3231_RTC::Control_Status::disable_32kHz();
+    
+    //DS3231_RTC::Year::set_Value(BUILD_YEAR);
+    //DS3231_RTC::Century_Month::set_Value(BUILD_MONTH);
+    //DS3231_RTC::Date::set_Value(BUILD_DAY);
+
+    DS3231_RTC::Hours::set_24_mode();
+    DS3231_RTC::Hours::set_Value(BUILD_HOUR);
+
+    DS3231_RTC::Minutes::set_Value(BUILD_MIN);
+    DS3231_RTC::Seconds::set_Value(BUILD_SEC);
 
     #endif //DS3231_RTC_HPP
 

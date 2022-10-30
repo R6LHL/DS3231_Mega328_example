@@ -17,6 +17,18 @@ uint8_t DS3231_RTC::Seconds::get_Value(void)
     //return raw_byte;
 }
 
+void DS3231_RTC::Seconds::set_Value(uint8_t s)
+{
+    uint8_t msb = s / 10;
+    uint8_t lsb = s % 10;
+
+    msb <<= Register::sec_10_shift;
+    msb &= Register::sec_10_mask;
+
+    lsb &= Register::sec_mask;
+    Register::send_Byte(msb+lsb);
+}
+
 uint8_t DS3231_RTC::Minutes::get_Value(void)
 {
     uint8_t raw_byte = Register::get_RAW_Byte();
@@ -34,6 +46,18 @@ uint8_t DS3231_RTC::Minutes::get_Value(void)
     //return raw_byte;
 }
 
+void DS3231_RTC::Minutes::set_Value(uint8_t m)
+{
+    uint8_t msb = m / 10;
+    uint8_t lsb = m % 10;
+
+    msb <<= Register::mins_10_shift;
+    msb &= Register::mins_10_mask;
+
+    lsb &= Register::mins_mask;
+    Register::send_Byte(msb+lsb);
+}
+
 uint8_t DS3231_RTC::Hours::get_Value(void)
 {
     uint8_t raw_byte = Register::get_RAW_Byte();
@@ -45,15 +69,15 @@ uint8_t DS3231_RTC::Hours::get_Value(void)
     c24 = (bool)(raw_byte & Register::c12_24_mask);
     //DS3231_RTC::Hours::is_pm = (bool)(raw_byte & Register::am_pm_mask);
 
-    if (c24 == 1)
+    if (c24 == 0)
     {
         hours10 = raw_byte & Register::hours_24_mask;
-        hours10 >>= Register::hours_24_shift;
+        hours10 >>= 4;
     }
     else
     {
         hours10 = raw_byte & Register::hours_12_mask;
-        hours10 >>= Register::hours_12_shift;
+        hours10 >>= 4;
     }
 
     hours10 = hours10 * 10;
@@ -64,18 +88,71 @@ uint8_t DS3231_RTC::Hours::get_Value(void)
    //return raw_byte;
 }
 
+bool DS3231_RTC::Hours::get_c12_24(void)
+{
+    uint8_t raw_byte = Register::get_RAW_Byte();
+    raw_byte &= Register::c12_24_mask;
+    return (bool)raw_byte;
+}
+
+bool DS3231_RTC::Hours::get_am_pm(void)
+{
+    uint8_t raw_byte = Register::get_RAW_Byte();
+    raw_byte &= Register::am_pm_mask;
+    return (bool)raw_byte;
+}
+
+void DS3231_RTC::Hours::set_am_pm(bool b)
+{
+    uint8_t raw_byte = Register::get_RAW_Byte();
+    raw_byte |= (b<<Register::am_pm_shift);
+    Register::send_Byte(raw_byte);
+}
+
 void DS3231_RTC::Hours::set_24_mode(void)
 {
     uint8_t raw_byte = Register::get_RAW_Byte();
-    raw_byte |= (1<<Register::c12_24_shift);
-    Register::send_Byte(Register::address, raw_byte);
+    raw_byte &= ~(1<<Register::c12_24_shift);
+    Register::send_Byte(raw_byte);
 }
 
-void DS3231_RTC::Hours::set_12_mode(void)
+void DS3231_RTC::Hours::set_12_mode()
 {
     uint8_t raw_byte = Register::get_RAW_Byte();
-    raw_byte &= ~(1<<Register::c12_24_shift);
-    Register::send_Byte(Register::address, raw_byte);
+    raw_byte |= (1<<Register::c12_24_shift);
+    Register::send_Byte(raw_byte);
+}
+
+void DS3231_RTC::Hours::set_Value(uint8_t h)
+{
+    uint8_t msb = h / 10;
+    uint8_t lsb = h % 10;
+    
+    /*
+    bool c12_14 = get_c12_24();
+    if(c12_14 == 0)
+    {
+        msb <<= Register::hours_12_shift;
+        msb &= Register::hours_12_mask;
+        
+        if (h > 12)
+        {
+            set_am_pm(true);
+        }
+        else set_am_pm(false);
+    }
+    else
+    {
+        msb <<= Register::hours_24_shift;
+        msb &= Register::hours_24_mask;
+    }
+    */
+    msb <<= 4;
+    //msb &= 0b00110000;;
+
+    lsb &= Register::hours_mask;
+
+    Register::send_Byte(msb+lsb);
 }
 
 uint8_t DS3231_RTC::Day::get_Value(void) 
@@ -138,14 +215,14 @@ void DS3231_RTC::Alarm1Seconds::set_a1m1(void)
 {
     uint8_t raw_byte = get_RAW_Byte();
     raw_byte |= (1 << b_a1m1);
-    send_Byte(address, raw_byte);
+    send_Byte(raw_byte);
 }
 
 void DS3231_RTC::Alarm1Seconds::clear_a1m1(void)
 {
     uint8_t raw_byte = get_RAW_Byte();
     raw_byte &= ~(1 << b_a1m1);
-    send_Byte(address, raw_byte);
+    send_Byte(raw_byte);
 }
 
 uint8_t DS3231_RTC::Alarm1Minutes::get_Value()
@@ -171,7 +248,6 @@ uint8_t DS3231_RTC::Alarm1Hours::get_Value()
     uint8_t hours10;
     uint8_t hours;
 
-    raw_byte = MCU::TWI_::read_Byte(i2c_address);
     c24 = raw_byte & c12_24_mask;
     is_pm = raw_byte & am_pm_mask;
 
@@ -230,7 +306,6 @@ uint8_t DS3231_RTC::Alarm2Hours::get_Value()
     uint8_t hours10;
     uint8_t hours;
 
-    raw_byte = MCU::TWI_::read_Byte(i2c_address);
     c24 = raw_byte & c12_24_mask;
     is_pm = raw_byte & am_pm_mask;
 
@@ -270,42 +345,42 @@ void DS3231_RTC::Control::enable_EOSC(void)
 {
     uint8_t raw_byte = get_RAW_Byte();
     raw_byte |= (1<<b_EOSC);
-    send_Byte(address, raw_byte);
+    send_Byte(raw_byte);
 }
 
 void DS3231_RTC::Control::disable_EOSC(void)
 {
     uint8_t raw_byte = get_RAW_Byte();
     raw_byte &= ~(1<<b_EOSC);
-    send_Byte(address, raw_byte);
+    send_Byte(raw_byte);
 }
         
 void DS3231_RTC::Control::enable_BBSQW(void)
 {
     uint8_t raw_byte = get_RAW_Byte();
     raw_byte |= (1<<b_BBSQW);
-    send_Byte(address, raw_byte);
+    send_Byte(raw_byte);
 }
 
 void DS3231_RTC::Control::disable_BBSQW(void)
 {
     uint8_t raw_byte = get_RAW_Byte();
     raw_byte &= ~(1<<b_BBSQW);
-    send_Byte(address, raw_byte);
+    send_Byte(raw_byte);
 }
 
 void DS3231_RTC::Control::start_temp_CONV(void)
 {
     uint8_t raw_byte = get_RAW_Byte();
     raw_byte |= (1<<b_CONV);
-    send_Byte(address, raw_byte);
+    send_Byte(raw_byte);
 }
 
 void DS3231_RTC::Control::set_SQW_Rate_1Hz(void)
 {
     uint8_t raw_byte = get_RAW_Byte();
     raw_byte &= ~((1<<b_RS2)|(1<<b_RS1));
-    send_Byte(address, raw_byte);
+    send_Byte(raw_byte);
 }
 
 void DS3231_RTC::Control::set_SQW_Rate_1024Hz(void)
@@ -313,7 +388,7 @@ void DS3231_RTC::Control::set_SQW_Rate_1024Hz(void)
    uint8_t raw_byte = get_RAW_Byte();
    raw_byte &= ~(1<<b_RS1);
    raw_byte |=(1<<b_RS2);
-   send_Byte(address, raw_byte); 
+   send_Byte(raw_byte); 
 }
 
 void DS3231_RTC::Control::set_SQW_Rate_4096Hz(void)
@@ -321,61 +396,61 @@ void DS3231_RTC::Control::set_SQW_Rate_4096Hz(void)
     uint8_t raw_byte = get_RAW_Byte();
     raw_byte &= ~(1<<b_RS2);
     raw_byte |=(1<<b_RS1);
-    send_Byte(address, raw_byte); 
+    send_Byte(raw_byte); 
 }
 
 void DS3231_RTC::Control::set_SQW_Rate_8132Hz(void)
 {
     uint8_t raw_byte = get_RAW_Byte();
     raw_byte |=((1<<b_RS2)|(1<<b_RS1));
-    send_Byte(address, raw_byte); 
+    send_Byte(raw_byte); 
 }
 
 void DS3231_RTC::Control::enable_INT(void)
 {
     uint8_t raw_byte = get_RAW_Byte();
     raw_byte |=(1<<b_INTCN);
-    send_Byte(address, raw_byte);
+    send_Byte(raw_byte);
 }
 
 void DS3231_RTC::Control::enable_SQW(void)
 {
     uint8_t raw_byte = get_RAW_Byte();
     raw_byte &= ~(1<<b_INTCN);
-    send_Byte(address, raw_byte);
+    send_Byte(raw_byte);
 }
 
 void DS3231_RTC::Control::enable_A1_INT(void)
 {
     uint8_t raw_byte = get_RAW_Byte();
     raw_byte |= (1<<b_A1IE);
-    send_Byte(address, raw_byte);
+    send_Byte(raw_byte);
 }
 
 void DS3231_RTC::Control::enable_A2_INT(void)
 {
     uint8_t raw_byte = get_RAW_Byte();
     raw_byte |= (1<<b_A2IE);
-    send_Byte(address, raw_byte);
+    send_Byte(raw_byte);
 }
 
 void DS3231_RTC::Control::disable_A1_INT(void)
 {
     uint8_t raw_byte = get_RAW_Byte();
     raw_byte &= ~(1<<b_A1IE);
-    send_Byte(address, raw_byte);
+    send_Byte(raw_byte);
 }
 
 void DS3231_RTC::Control::disable_A2_INT(void)
 {
     uint8_t raw_byte = get_RAW_Byte();
     raw_byte &= ~(1<<b_A2IE);
-    send_Byte(address, raw_byte);
+    send_Byte(raw_byte);
 }
 
 void DS3231_RTC::Control::set_config(uint8_t conf)
 {
-    send_Byte(address, conf);
+    send_Byte(conf);
 }
 
 uint8_t DS3231_RTC::Control::get_config(void)
@@ -387,14 +462,14 @@ void DS3231_RTC::Control_Status::enable_32kHz()
 {
     uint8_t raw_byte = get_RAW_Byte();
     raw_byte |= (1<<b_EN32kHZ);
-    send_Byte(address, raw_byte);
+    send_Byte(raw_byte);
 }
 
 void DS3231_RTC::Control_Status::disable_32kHz()
 {
     uint8_t raw_byte = get_RAW_Byte();
     raw_byte &= ~(1<<b_EN32kHZ);
-    send_Byte(address, raw_byte);
+    send_Byte(raw_byte);
 }
 
 bool DS3231_RTC::Control_Status::is_BUSY(void)
@@ -422,19 +497,19 @@ void DS3231_RTC::Control_Status::clear_Alarm1_Event(void)
 {
     uint8_t raw_byte = get_RAW_Byte();
     raw_byte &= ~(1<<b_A1F);
-    send_Byte(address, raw_byte);
+    send_Byte(raw_byte);
 }
 
 void DS3231_RTC::Control_Status::clear_Alarm2_Event(void)
 {
     uint8_t raw_byte = get_RAW_Byte();
     raw_byte &= ~(1<<b_A2F);
-    send_Byte(address, raw_byte);
+    send_Byte(raw_byte);
 }
 
 void DS3231_RTC::Control_Status::set_config(uint8_t conf)
 {
-     send_Byte(address, conf);
+     send_Byte(conf);
 }
 
 uint8_t DS3231_RTC::Control_Status::get_config(void)

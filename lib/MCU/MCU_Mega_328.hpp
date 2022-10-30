@@ -630,7 +630,7 @@ namespace MCU
 			static const uint8_t slave_address_mask = 		0b11111110;
 		};
 		//end TWI(slave) address mask register
-
+		/*
 		enum Error
 		{
 			NO_ERROR,
@@ -644,8 +644,9 @@ namespace MCU
 			MR_SLAR_t_NACK_r,
 			MR_DATA_t_NACK_r,
 		};
+		*/
 
-		static uint8_t error = Error::NO_ERROR;
+		//static uint8_t error = Error::NO_ERROR;
 
 		//TWI power management
 		 void powerUp(void);
@@ -676,10 +677,9 @@ namespace MCU
 		void send_Data_byte(uint8_t data_byte);
 		void send_Stop(void);
 
-		void send_Byte(uint8_t dev_addr, uint8_t data_byte);
 		void send_Reg_Byte(uint8_t dev_add, uint8_t reg_addr, uint8_t data_byte);
 
-		uint8_t read_Byte(uint8_t address);
+		uint8_t read_Reg_Byte(uint8_t dev_add, uint8_t reg_add);
 	}// end Two-wire interface
 	
 	namespace AC_ //Analog comparator

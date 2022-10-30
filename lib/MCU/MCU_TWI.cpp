@@ -55,7 +55,7 @@ void MCU::TWI_::set_ACK_disabled(void)
 
 void MCU::TWI_::send_Start(void)
 {
-	MCU::TWI_::error = Error::NO_ERROR;
+	//MCU::TWI_::error = Error::NO_ERROR;
     //uint8_t byte_ = TWCR_::Get();
 	uint8_t byte_ = 0;
 	byte_ = (1<<TWCR_::b_TWINT)|(1<<TWCR_::b_TWSTA)|(1<<TWCR_::b_TWEN);
@@ -68,7 +68,6 @@ void MCU::TWI_::send_Start(void)
 
 void MCU::TWI_::send_SLA_W(uint8_t slave_address)
 {
-
 	uint8_t byte_ = slave_address;
     byte_ &= ~(1<<0); //set Write mode
     TWDR_::Set(byte_);
@@ -120,15 +119,10 @@ void MCU::TWI_::send_Stop(void)
     //while (!(TWCR_::GetBit(TWCR_::b_TWINT))); //while TWINT == 0
 }
 
-void MCU::TWI_::send_Byte(uint8_t ad, uint8_t b)
-{
-	send_Start();
-	send_SLA_W(ad);
-	send_Data_byte(b);
-}
-
 void MCU::TWI_::send_Reg_Byte(uint8_t ad, uint8_t r_ad ,uint8_t db)
 {
+	send_Stop();
+    set_ACK_enabled();
 	send_Start();
 	send_SLA_W(ad);
 	send_Data_byte(r_ad);
@@ -136,11 +130,21 @@ void MCU::TWI_::send_Reg_Byte(uint8_t ad, uint8_t r_ad ,uint8_t db)
 	send_Stop();
 }
 
-uint8_t MCU::TWI_::read_Byte(uint8_t ad)
+uint8_t MCU::TWI_::read_Reg_Byte(uint8_t ad, uint8_t r_ad)
 {
-	send_Start();
-	send_SLA_R(ad);
-	return TWDR_::Get();
+	uint8_t byte_;
+	MCU::TWI_::send_Stop();
+    MCU::TWI_::set_ACK_enabled();
+    MCU::TWI_::send_Start();
+	MCU::TWI_::send_SLA_W(ad);
+	MCU::TWI_::send_Data_byte(r_ad);
+	MCU::TWI_::send_Start();
+	MCU::TWI_::send_SLA_R(ad);
+    MCU::TWI_::set_ACK_disabled();
+	while (!(MCU::TWI_::TWCR_::GetBit(MCU::TWI_::TWCR_::b_TWINT))); //while TWINT == 0
+	byte_ = MCU::TWI_::TWDR_::Get();
+	send_Stop();
+	return byte_;
 }
 /* !!!Как вариант!!!
 #pragma vector = TWI_vect

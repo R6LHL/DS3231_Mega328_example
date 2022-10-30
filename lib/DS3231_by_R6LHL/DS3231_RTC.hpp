@@ -68,11 +68,15 @@ namespace DS3231_RTC
 
        //static bool is_pm;
         
-       uint8_t get_Value(void);
-       void set_Value(bool set24, bool set_pm, uint8_t hours);
-       void set_24_mode(void);
-       void set_12_mode(void);
-    };
+        uint8_t get_Value(void);
+        bool get_c12_24(void);
+        bool get_am_pm(void);
+
+        void set_Value(uint8_t hours);
+        void set_24_mode(void);
+        void set_12_mode(void);
+        void set_am_pm(bool b);
+    }
 
     struct Day : public DS3231_Register<0x03>
     {
@@ -82,8 +86,8 @@ namespace DS3231_RTC
         static const uint8_t day_max = 7;
         static const uint8_t day_error = 8;
 
-        uint8_t get_Value(void);
-        void set_Value(uint8_t day);
+        static uint8_t get_Value(void);
+        static void set_Value(uint8_t day);
     };
 
     struct Date : public DS3231_Register<0x04>
@@ -91,14 +95,14 @@ namespace DS3231_RTC
         static bit_mask date_10_mask = 0b00110000;
         static bit_mask date_mask =    0b00001111;
 
-        const uint8_t date_10_shift = 4;
+        static const uint8_t date_10_shift = 4;
 
         static const uint8_t date_min = 1;
         static const uint8_t date_max = 31;
         static const uint8_t date_error = 32;
 
-        uint8_t get_Value(void);
-        void set_Value(uint8_t date);
+        static uint8_t get_Value(void);
+        static void set_Value(uint8_t date);
     };
 
     struct Century_Month : public DS3231_Register<0x05>
@@ -112,10 +116,10 @@ namespace DS3231_RTC
         static const uint8_t month_min = 1;
         static const uint8_t month_max = 12;
 
-        bool is_century22;
+        static bool is_century22;
 
-        uint8_t get_Value(void);
-        void set_Value(bool century, uint8_t month);
+        static uint8_t get_Value(void);
+        static void set_Value(bool century, uint8_t month);
     };
 
     struct Year : public DS3231_Register<0x06>
@@ -128,8 +132,8 @@ namespace DS3231_RTC
         static const uint8_t year_min = 0;
         static const uint8_t year_max = 99;
 
-        uint8_t get_Value(void);
-        uint8_t set_Value(uint8_t year);
+        static uint8_t get_Value(void);
+        static uint8_t set_Value(uint8_t year);
     };
 
     struct Alarm1Seconds : private DS3231_Register<0x07>
