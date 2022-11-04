@@ -1,9 +1,26 @@
 #ifndef CONFIG_HPP
 #define CONFIG_HPP
 
+#define MEGA328
+//#define MEGA168
+
+//DEBUG MODE
+#define DEBUG_ON
+
+#ifdef DEBUG_ON
+    #define DEBUG_TIME_SET
+    //#define SLEEP_ENABLED
+#endif //DEBUG_ON
+
 #include <avr/io.h>
+
+#ifdef MEGA328
 #include <MCU_Mega_328.hpp>
+#endif //MEGA328
+
+#ifdef DEBUG_TIME_SET
 #include <build_time.h>
+#endif //DEBUG_TIME_SET
 
 //Task Manager config
 const uint8_t task_queue_size = 5;

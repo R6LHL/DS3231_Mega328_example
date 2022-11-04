@@ -9,6 +9,8 @@
 void led_on (void);
 void led_off(void);
 
-void print_Time(void);
+    #ifdef DEBUG_TIME_SET
+        void print_Time(void);
+    #endif //DEBUG_TIME_SET
 
 #endif //TASKS_HPP

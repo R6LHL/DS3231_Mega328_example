@@ -14,6 +14,7 @@ void led_off(void)
     //Serial.println(F("Led off"));
 }
 
+#ifdef DEBUG_TIME_SET
 void print_Time(void)
 {
     uint8_t hours = DS3231_RTC::Hours::get_Value();
@@ -43,3 +44,4 @@ void print_Time(void)
 
     OS.SetTask_(print_Time, time_print_period_ts);
 }
+#endif //DEBUG_TIME_SET
