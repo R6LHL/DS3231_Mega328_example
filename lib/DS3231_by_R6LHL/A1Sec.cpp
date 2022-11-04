@@ -31,26 +31,6 @@ void DS3231_RTC::Alarm1Seconds::set_Value(uint8_t s)
     Register::send_Byte(msb+lsb);
 }
 
-void DS3231_RTC::Alarm1Seconds::set_Value(bool f, uint8_t s)
-{
-    if (s > Register::seconds_max) s = Register::seconds_max;
-    else if (s < Register::seconds_min) s = Register::seconds_min;
-    
-    uint8_t msb = s / 10;
-    uint8_t lsb = s % 10;
-
-    msb <<= 4;
-    msb &= Register::sec_10_mask;
-    
-    lsb &= Register::sec_mask;
-
-    uint8_t byte_ = msb+lsb;
-    if (f == false) {(byte_ &= ~(1<<7));}
-    else {byte_ |= (1<<7);}
-
-    Register::send_Byte(byte_);
-}
-
 void DS3231_RTC::Alarm1Seconds::set_a1m1(void)
 {
     uint8_t raw_byte = Register::get_RAW_Byte();

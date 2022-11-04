@@ -131,11 +131,11 @@ namespace DS3231_RTC
             static const uint8_t month_min = 1;
             static const uint8_t month_max = 12;
 
-            static bool is_century22;
         };
 
         uint8_t get_Value(void);
         void set_Value(bool century, uint8_t month);
+        bool is_century22(void);
     }
 
     namespace Year
@@ -290,8 +290,6 @@ namespace DS3231_RTC
             static bit_mask a2m2_mask =    0b10000000;
             static bit_mask mins_10_mask = 0b01110000;
             static bit_mask mins_mask =    0b00001111;
-
-            static bit_mask a2m2_mask =    0b10000000;
             
             static bit_number b_a2m2 = 7;
 
@@ -304,7 +302,7 @@ namespace DS3231_RTC
         };
 
         uint8_t get_Value(void);
-        void set_Value(bool a2m2_set, uint8_t minutes);
+        void set_Value(uint8_t minutes);
 
         void set_a2m2(void);
         void clear_a2m2(void);
@@ -357,9 +355,12 @@ namespace DS3231_RTC
         struct Register : public DS3231_Register<0x0d>
         {
             static bit_mask a2m4_mask =            0b10000000;
-            static bit_mask day_date_mask =         0b01000000;
-            static bit_mask date_mask =             0b00111111;
-            static bit_mask day_mask =              0b00001111;
+            static bit_mask day_date_mask =        0b01000000;
+            static bit_mask date_mask =            0b00111111;
+            static bit_mask day_mask =             0b00001111;
+
+            static bit_number b_a2m4 =  7;
+            static bit_number b_dy_dt = 6;
 
             static const uint8_t day_date_shift =   6;
 
@@ -374,9 +375,15 @@ namespace DS3231_RTC
         };
 
         uint8_t get_Value(void);
-        void set_Day(bool a2m4, uint8_t day);
-        void set_Date(bool a2m4, uint8_t date);
-    };
+        void set_Day(uint8_t day);
+        void set_Date(uint8_t date);
+
+        void set_day_alarm(void);
+        void set_date_alarm(void);
+
+        void set_a2m4(void);
+        void clear_a2m4(void);
+    }
 
     namespace Control
     {   

@@ -42,7 +42,7 @@ void setup() {
       DS3231_RTC::Control_Status::disable_32kHz();
     
       #ifdef DEBUG_TIME_SET
-      //DS3231_RTC::Year::set_Value(BUILD_YEAR);
+      DS3231_RTC::Year::set_Value(22);
       DS3231_RTC::Century_Month::set_Value(0, BUILD_MONTH);
       DS3231_RTC::Date::set_Value(BUILD_DAY);
 
