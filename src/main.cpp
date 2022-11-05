@@ -1,3 +1,4 @@
+
 #include "variables.hpp"
 #include "Tasks.hpp"
 
@@ -24,11 +25,15 @@ void setup() {
     MCU::TWI_::TWBR_::Set(72);
     MCU::TWI_::Prescaler::Set_1(); // scl 100 kHz
 
-    //Watchdog setup for TaskManager
-    MCU::Watchdog::System_reset_disable();
-    MCU::Watchdog::Prescaler::set_2048();
-    MCU::Watchdog::Mode::interrupt();
-    MCU::Watchdog::Interrupt_Enable();
+    //protective delay for emergency reprogramming
+    #define F_CPU 16000000
+    delay(3000);
+    
+    //Power mangement
+    MCU::Core::powerDown_All_Peripherials();
+    MCU::TWI_::powerUp();
+    MCU::USART_::powerUp();
+    MCU::TC0_::powerUp();
 
     //Sleep mode setup
     #ifdef SLEEP_ENABLED
@@ -54,10 +59,16 @@ void setup() {
       #endif //DEBUG_TIME_SET
     #endif //DS3231_RTC_HPP
 
+    //Watchdog setup for TaskManager
+    MCU::Watchdog::System_reset_disable();
+    MCU::Watchdog::Prescaler::set_2048();
+    MCU::Watchdog::Mode::interrupt();
+    MCU::Watchdog::Interrupt_Enable();
+
   #endif //MCU_Mega328_HPP
 
   #ifdef TASKMANAGER_HPP
-    OS.SetTask_(led_on, led_on_period_ts);
+    OS.SetTask_(power_on, do_now);
     #ifdef DEBUG_TIME_SET
       OS.SetTask_(print_Time, time_print_period_ts);
     #endif //DEBUG_TIME_SET

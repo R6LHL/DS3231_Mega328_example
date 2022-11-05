@@ -118,6 +118,7 @@ namespace MCU
 		*/
 
 		void powerDown_All_Peripherials(void);
+		void powerUp_All_Peripherials(void);
 		
 	}// end MCU core control registers
 		
@@ -705,6 +706,7 @@ namespace MCU
 		// end Digital input disable register 1
 
 		void powerDown(void);
+		void powerUp(void);
 				
 	}// end Analog comparator
 	

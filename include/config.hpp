@@ -27,11 +27,13 @@ const uint8_t task_queue_size = 5;
 //const uint8_t os_min_timeslot_ms = 16;
 
 //Pin layout
-const uint8_t built_in_led_bit = 5;
-
+typedef const uint8_t pin_number;
+pin_number PWR_CTRL_PIN = 13;    // PORT_B.5
+pin_number RTC_INT_PIN = 2;     // PORT_D.2
 // Tasks periods
 // timeslot = period_you_need / os_min_timeslot_ms
-//const uint8_t do_now = 0;
+typedef const uint8_t task_delay;
+task_delay do_now = 0;
 //const uint8_t lcd_renew_period_ts = (uint8_t)(80 / os_min_timeslot_ms);
 //const uint8_t encoder_check_period_ts = 1;
 //const uint8_t button_check_period_ts = (uint8_t)(48 / os_min_timeslot_ms);

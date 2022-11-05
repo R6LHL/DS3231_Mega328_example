@@ -6,8 +6,8 @@
 
 #include "variables.hpp"
 
-void led_on (void);
-void led_off(void);
+void power_on (void);
+void power_off(void);
 
     #ifdef DEBUG_TIME_SET
         void print_Time(void);

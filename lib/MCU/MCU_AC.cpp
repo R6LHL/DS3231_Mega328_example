@@ -22,3 +22,8 @@ void MCU::AC_::powerDown(void)
 {
 	ACSR_::SetBit(ACSR_::ACD_);
 }
+
+void MCU::AC_::powerUp(void)
+{
+	ACSR_::ClearBit(ACSR_::ACD_);
+}
