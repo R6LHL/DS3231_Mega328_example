@@ -210,7 +210,11 @@ namespace MCU
 		// end External interrupt mask register
 		
 		//External interrupt flag register
-		struct EIFR_ : public RegisterBase<0x3c> {};
+		struct EIFR_ : public RegisterBase<0x3c> 
+		{
+			static bit_number b_INTF0 = 0;
+			static bit_number b_INTF1 = 1;
+		};
 		// end External interrupt flag register
 		
 		//Pin Change Interrupt Control register

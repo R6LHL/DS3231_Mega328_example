@@ -2,18 +2,25 @@
 
 void periph_power_on(void)
 {
-    MCU::Core::powerUp_All_Peripherials();
-    MCU::EXINT_::INT0_Disable();
+    //MCU::EXINT_::INT0_Disable();
+    //DS3231_RTC::Control::disable_A2_INT();
+    
+    //MCU::Core::powerUp_All_Peripherials();
     Serial.println(F("Waking..."));
     digitalWrite(PWR_CTRL_PIN, HIGH);
-    OS.SetTask_(print_Time, do_now);
+    OS.SetTask_(print_Time, 100);
 }
 
 void periph_power_off(void)
 {
-    Serial.println(F("Sleeping..."));
     OS.SetTask_(system_sleep, do_now);
-    DS3231_RTC::Control::disable_A1_INT();
+    Serial.println(F("Sleeping..."));
+
+    //MCU::EXINT_::INT0_Enable();
+    //MCU::EXINT_::EIFR_::ClearBit(MCU::EXINT_::EIFR_::b_INTF0);
+    //DS3231_RTC::Control::enable_A2_INT();
+    //MCU::EXINT_::EIFR_::ClearBit(MCU::EXINT_::EIFR_::b_INTF0);
+
     //MCU::Core::powerDown_All_Peripherials();
     digitalWrite(PWR_CTRL_PIN, LOW);
 }
@@ -78,8 +85,4 @@ void print_Date(void)
 }
 #endif //DEBUG_TIME_SET
 
-void system_sleep(void)
-{
-    MCU::EXINT_::INT0_Enable();
-    asm("sleep");
-}
+void system_sleep(void){asm("sleep");}

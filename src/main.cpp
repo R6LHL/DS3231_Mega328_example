@@ -7,8 +7,7 @@ TaskManager5 OS;
 ISR(INT0_vect)
 {
   Serial.println(F("Wake up Neo..."));
-  DS3231_RTC::Control::disable_A1_INT();
-  OS.SetTask_(periph_power_on, do_now);
+  OS.SetTask_(periph_power_on, 10);
 }
 
 #ifdef TASKMANAGER_HPP
@@ -54,10 +53,7 @@ void setup() {
     #ifdef DS3231_RTC_HPP //RTC Setup
       DS3231_RTC::Control::disable_BBSQW();
       DS3231_RTC::Control::disable_EOSC();
-      DS3231_RTC::Control::enable_INT();
       DS3231_RTC::Control_Status::disable_32kHz();
-      DS3231_RTC::Control::disable_A1_INT();
-
     
       #ifdef DEBUG_TIME_SET
       DS3231_RTC::Year::set_Value(22);
@@ -73,7 +69,9 @@ void setup() {
       DS3231_RTC::Alarm1Day_Date::set_a1m4();
       DS3231_RTC::Alarm1Hours::set_a1m3();
       DS3231_RTC::Alarm1Minutes::set_a1m2();
-      DS3231_RTC::Alarm1Seconds::set_a1m1();
+      DS3231_RTC::Control::disable_A1_INT();
+      //DS3231_RTC::Alarm1Seconds::set_Value(30);
+      //DS3231_RTC::Alarm1Seconds::set_a1m1();
 
       #endif //DEBUG_TIME_SET
     #endif //DS3231_RTC_HPP
@@ -84,7 +82,9 @@ void setup() {
     MCU::Watchdog::Mode::interrupt();
     MCU::Watchdog::Interrupt_Enable();
 
-    MCU::EXINT_::INT0_Mode::falling_edge();
+    MCU::EXINT_::INT0_Mode::low_level();
+    MCU::EXINT_::INT0_Enable();
+    DS3231_RTC::Control::enable_A1_INT();
 
   #endif //MCU_Mega328_HPP
 

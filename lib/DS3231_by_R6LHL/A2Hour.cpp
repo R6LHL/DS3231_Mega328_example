@@ -79,3 +79,17 @@ void DS3231_RTC::Alarm2Hours::set_pm(void)
     byte_ |= (1<<Register::b_am_pm);
     Register::send_Byte(byte_);
 }
+
+void DS3231_RTC::Alarm2Hours::set_a2m3(void)
+{
+    uint8_t byte_ = Register::get_RAW_Byte();
+    byte_ |= (1<<Register::b_a2m3);
+    Register::send_Byte(byte_);
+}
+
+void DS3231_RTC::Alarm2Hours::clear_a2m3(void)
+{
+    uint8_t byte_ = Register::get_RAW_Byte();
+    byte_ &= ~(1<<Register::b_a2m3);
+    Register::send_Byte(byte_);
+}
