@@ -4,6 +4,8 @@
 
 TaskManager5 OS;
 
+ISR(INT0_vect){OS.SetTask_(periph_power_on, do_now);}
+
 #ifdef TASKMANAGER_HPP
   ISR(WDT_vect){OS.TimerTaskService_();}
 #endif //TASKMANAGER_HPP
@@ -15,19 +17,19 @@ void setup() {
   #endif //DEBUG_ON
 
   #ifdef MCU_Mega328_HPP
-    //IO pins setup
-    MCU::IO_::PORTB_::pullupAll();
-    MCU::IO_::PORTC_::pullupAll();
-    MCU::IO_::PORTD_::pullupAll();
+    
+    //emergency power up MCU peripherials
+    MCU::Core::powerUp_All_Peripherials();
+    //protective delay for emergency reprogramming
+    //#define F_CPU 16000000
+    delay(3000);
 
-    MCU::IO_::PORTB_::DDR_::SetBit(5);
+    //IO pins setup
+    pinMode(PWR_CTRL_PIN, OUTPUT);
+    pinMode(RTC_INT_PIN, INPUT_PULLUP);
 
     MCU::TWI_::TWBR_::Set(72);
     MCU::TWI_::Prescaler::Set_1(); // scl 100 kHz
-
-    //protective delay for emergency reprogramming
-    #define F_CPU 16000000
-    delay(3000);
     
     //Power mangement
     MCU::Core::powerDown_All_Peripherials();
@@ -65,10 +67,12 @@ void setup() {
     MCU::Watchdog::Mode::interrupt();
     MCU::Watchdog::Interrupt_Enable();
 
+    MCU::EXINT_::EIMSK_::SetBit(0); //external interrup 0 enabled
+
   #endif //MCU_Mega328_HPP
 
   #ifdef TASKMANAGER_HPP
-    OS.SetTask_(power_on, do_now);
+    OS.SetTask_(periph_power_on, do_now);
     #ifdef DEBUG_TIME_SET
       OS.SetTask_(print_Time, time_print_period_ts);
     #endif //DEBUG_TIME_SET

@@ -190,11 +190,21 @@ namespace MCU
 	namespace EXINT_ //external interrupts
 	{
 		//External interrupt control register A
-		struct EICRA_ : public RegisterBase<0x69> {};
+		struct EICRA_ : public RegisterBase<0x69> 
+		{
+			static bit_number b_ISC00 = 0;
+			static bit_number b_ISC01 = 1;
+			static bit_number b_ISC10 = 2;
+			static bit_number b_ISC11 = 3;
+		};
 		// end External interrupt control register A
 		
 		//External interrupt mask register
-		struct EIMSK_ : public RegisterBase<0x3d> {};
+		struct EIMSK_ : public RegisterBase<0x3d> 
+		{
+			static bit_number b_INT0 = 0;
+			static bit_number b_INT1 = 1;
+		};
 		// end External interrupt mask register
 		
 		//External interrupt flag register
@@ -221,6 +231,28 @@ namespace MCU
 		struct PCMSK0_ : public RegisterBase<0x6b> {};
 		// end Pin Change mask register 0
 		
+		namespace INT0_Mode
+		{
+			void low_level(void);
+			void any_change(void);
+			void falling_edge(void);
+			void rising_edge(void);
+		}
+
+		namespace INT1_Mode
+		{
+			void low_level(void);
+			void any_change(void);
+			void falling_edge(void);
+			void rising_edge(void);
+		}
+		
+		void INT0_Enable(void);
+		void INT0_Disable(void);
+
+		void INT1_Enable(void);
+		void INT1_Disable(void);
+
 	}// end external interrupts
 		
 	namespace TC0_ // Timer-counter 0 8bit
@@ -546,11 +578,7 @@ namespace MCU
 	namespace TWI_ // Two-wire interface
 	{	
 		//TWI Bit rate register
-		struct TWBR_ : public RegisterBase<0xb8> 
-		{
-			//TWBR = ((F_cpu/F_scl) - 16)/(2*4^TWPS)
-
-		};
+		struct TWBR_ : public RegisterBase<0xb8>{};
 		// end TWI Bit rate register
 		
 		//TWI status register
@@ -628,27 +656,9 @@ namespace MCU
 		//TWI(slave) address mask register
 		struct TWAMR_ : public RegisterBase<0xbd> 
 		{
-			static const uint8_t slave_address_mask = 		0b11111110;
+			static const uint8_t slave_address_mask = 0b11111110;
 		};
-		//end TWI(slave) address mask register
-		/*
-		enum Error
-		{
-			NO_ERROR,
-			NO_START,
-
-			MT_SLAW_t_NACK_r,
-			MT_DATA_t_NACK_r,
-			MT_ARBIT_LOST,
-
-			MR_ARBIT_LOST,
-			MR_SLAR_t_NACK_r,
-			MR_DATA_t_NACK_r,
-		};
-		*/
-
-		//static uint8_t error = Error::NO_ERROR;
-
+		
 		//TWI power management
 		 void powerUp(void);
 		 void powerDown(void);

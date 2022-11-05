@@ -1,17 +1,14 @@
 #include "Tasks.hpp"
 
-void led_on(void)
+void periph_power_on(void)
 {
-    MCU::IO_::PORTB_::PORT_::SetBit(5);
-    OS.SetTask_(led_off, led_off_period_ts);
-    //Serial.println(F("Led on"));
+    digitalWrite(PWR_CTRL_PIN, HIGH);
+    OS.SetTask_(print_Time, do_now);
 }
-
-void led_off(void)
+void periph_power_off(void)
 {
-    MCU::IO_::PORTB_::PORT_::ClearBit(5);
-    OS.SetTask_(led_on, led_off_period_ts);
-    //Serial.println(F("Led off"));
+    digitalWrite(PWR_CTRL_PIN, LOW);
+    OS.SetTask_(system_sleep, do_now);
 }
 
 #ifdef DEBUG_TIME_SET
@@ -42,7 +39,6 @@ void print_Time(void)
     }
     Serial.println(DS3231_RTC::Seconds::get_Value());
 
-    OS.SetTask_(print_Time, time_print_period_ts);
     OS.SetTask_(print_Date, time_print_period_ts);
 }
 
@@ -71,6 +67,11 @@ void print_Date(void)
     Serial.print(F("20"));
     Serial.println(year);
 
-    OS.SetTask_(print_Time, time_print_period_ts);
+    OS.SetTask_(periph_power_off, time_print_period_ts);
 }
 #endif //DEBUG_TIME_SET
+
+void system_sleep(void)
+{
+    asm("sleep");
+}
