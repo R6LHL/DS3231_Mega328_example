@@ -9,6 +9,8 @@
 #include <IO_port_basic.hpp>
 #include <Buffer.hpp>
 
+typedef const uint8_t bit_number;
+
 // Atmega328 MicroController Unit
 namespace MCU
 {

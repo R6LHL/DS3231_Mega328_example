@@ -17,8 +17,8 @@ uint8_t DS3231_RTC::Minutes::get_Value(void)
 
 void DS3231_RTC::Minutes::set_Value(uint8_t m)
 {
-    if (m > Register::minutes_max) m = Register::minutes_max;
-    else if (m < Register::minutes_max) m = Register::minutes_max;
+    if (m > Register::minutes_max) {m = Register::minutes_max;}
+    else if (m < Register::minutes_min) {m = Register::minutes_min;}
     
     uint8_t msb = m / 10;
     uint8_t lsb = m % 10;

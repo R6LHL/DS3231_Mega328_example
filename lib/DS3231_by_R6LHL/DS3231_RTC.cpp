@@ -1,47 +1,5 @@
 #include "DS3231_RTC.hpp"
 
-uint8_t DS3231_RTC::Alarm2Hours::get_Value()
-{
-    uint8_t raw_byte = Register::get_RAW_Byte();
-    bool c24;
-    uint8_t hours10;
-    uint8_t hours;
-
-    c24 = raw_byte & Register::c12_24_mask;
-    Register::is_pm = raw_byte & Register::am_pm_mask;
-
-    Register::is_a2m3_set = raw_byte & Register::a2m3_mask;
-
-    if (c24 == true)
-    {
-        hours10 = raw_byte & Register::hours_24_mask;
-        hours10 >>= Register::hours_24_shift;
-    }
-    else
-    {
-        hours10 = raw_byte & Register::hours_12_mask;
-        hours10 >>= Register::hours_12_shift;
-    }
-
-    hours10 = hours10 * 10;
-    hours = raw_byte & Register::hours_mask;
-
-    return hours10 + hours;
-}
-
-uint8_t DS3231_RTC::Alarm2Day_Date::get_Value()
-{
-    uint8_t raw_byte = Register::get_RAW_Byte();
-
-    Register::is_a2m4_set = raw_byte & Register::a2m4_mask;
-    Register::is_date = raw_byte & Register::day_date_mask;
-
-    uint8_t day_or_date;
-
-    if (Register::is_date == true) return (day_or_date & Register::date_mask);
-    else return  day_or_date & Register::day_mask;
-}
-
 void DS3231_RTC::Control::enable_EOSC(void)
 {
     uint8_t raw_byte = Register::get_RAW_Byte();
@@ -140,6 +98,7 @@ void DS3231_RTC::Control::disable_A1_INT(void)
     uint8_t raw_byte = Register::get_RAW_Byte();
     raw_byte &= ~(1<<Register::b_A1IE);
     Register::send_Byte(raw_byte);
+    DS3231_RTC::Control_Status::clear_Alarm1_Event();
 }
 
 void DS3231_RTC::Control::disable_A2_INT(void)
@@ -147,6 +106,7 @@ void DS3231_RTC::Control::disable_A2_INT(void)
     uint8_t raw_byte = Register::get_RAW_Byte();
     raw_byte &= ~(1<<Register::b_A2IE);
     Register::send_Byte(raw_byte);
+    DS3231_RTC::Control_Status::clear_Alarm1_Event();
 }
 
 void DS3231_RTC::Control::set_config(uint8_t conf)

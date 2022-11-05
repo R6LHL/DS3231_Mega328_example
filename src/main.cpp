@@ -4,7 +4,12 @@
 
 TaskManager5 OS;
 
-ISR(INT0_vect){OS.SetTask_(periph_power_on, do_now);}
+ISR(INT0_vect)
+{
+  Serial.println(F("Wake up Neo..."));
+  DS3231_RTC::Control::disable_A1_INT();
+  OS.SetTask_(periph_power_on, do_now);
+}
 
 #ifdef TASKMANAGER_HPP
   ISR(WDT_vect){OS.TimerTaskService_();}
@@ -12,17 +17,19 @@ ISR(INT0_vect){OS.SetTask_(periph_power_on, do_now);}
 
 void setup() {
 
-  #ifdef DEBUG_ON
-    Serial.begin(9600);
-  #endif //DEBUG_ON
-
   #ifdef MCU_Mega328_HPP
     
     //emergency power up MCU peripherials
     MCU::Core::powerUp_All_Peripherials();
+    
     //protective delay for emergency reprogramming
     //#define F_CPU 16000000
-    delay(3000);
+    #ifdef DEBUG_ON
+      Serial.begin(9600);
+      Serial.println(F("You can reprogramm it now..."));
+      delay(3000);
+      Serial.println(F("Ok, let's work..."));
+    #endif //DEBUG_ON
 
     //IO pins setup
     pinMode(PWR_CTRL_PIN, OUTPUT);
@@ -30,12 +37,14 @@ void setup() {
 
     MCU::TWI_::TWBR_::Set(72);
     MCU::TWI_::Prescaler::Set_1(); // scl 100 kHz
-    
+
+    /*
     //Power mangement
     MCU::Core::powerDown_All_Peripherials();
     MCU::TWI_::powerUp();
     MCU::USART_::powerUp();
     MCU::TC0_::powerUp();
+    */
 
     //Sleep mode setup
     #ifdef SLEEP_ENABLED
@@ -47,6 +56,8 @@ void setup() {
       DS3231_RTC::Control::disable_EOSC();
       DS3231_RTC::Control::enable_INT();
       DS3231_RTC::Control_Status::disable_32kHz();
+      DS3231_RTC::Control::disable_A1_INT();
+
     
       #ifdef DEBUG_TIME_SET
       DS3231_RTC::Year::set_Value(22);
@@ -54,10 +65,16 @@ void setup() {
       DS3231_RTC::Date::set_Value(BUILD_DAY);
 
       DS3231_RTC::Hours::set_24_mode();
-      DS3231_RTC::Hours::set_Value(BUILD_HOUR);
+      DS3231_RTC::Hours::set_Value(14);
 
-      DS3231_RTC::Minutes::set_Value(BUILD_MIN);
-      DS3231_RTC::Seconds::set_Value(BUILD_SEC);
+      DS3231_RTC::Minutes::set_Value(0);
+      DS3231_RTC::Seconds::set_Value(0);
+
+      DS3231_RTC::Alarm1Day_Date::set_a1m4();
+      DS3231_RTC::Alarm1Hours::set_a1m3();
+      DS3231_RTC::Alarm1Minutes::set_a1m2();
+      DS3231_RTC::Alarm1Seconds::set_a1m1();
+
       #endif //DEBUG_TIME_SET
     #endif //DS3231_RTC_HPP
 
@@ -67,15 +84,12 @@ void setup() {
     MCU::Watchdog::Mode::interrupt();
     MCU::Watchdog::Interrupt_Enable();
 
-    MCU::EXINT_::EIMSK_::SetBit(0); //external interrup 0 enabled
+    MCU::EXINT_::INT0_Mode::falling_edge();
 
   #endif //MCU_Mega328_HPP
 
   #ifdef TASKMANAGER_HPP
     OS.SetTask_(periph_power_on, do_now);
-    #ifdef DEBUG_TIME_SET
-      OS.SetTask_(print_Time, time_print_period_ts);
-    #endif //DEBUG_TIME_SET
   #endif // TASKMANAGER_HPP
 }
 
