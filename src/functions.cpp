@@ -67,3 +67,10 @@ void Setup_Sleep(void)
     MCU::Sleep_::Mode::PowerDown();
 }
 
+void Setup_Watchdog(void)
+{
+    MCU::Watchdog::System_reset_disable();
+    MCU::Watchdog::Prescaler::set_2048();
+    MCU::Watchdog::Mode::interrupt();
+    MCU::Watchdog::Interrupt_Enable();
+}

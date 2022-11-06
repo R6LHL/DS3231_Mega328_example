@@ -5,7 +5,7 @@ void Tasks::System::periph_power_on(void)
 {
     Serial.println(F("Wake up Neo..."));
     digitalWrite(PWR_CTRL_PIN, HIGH);
-    
+
     OS.SetTask_(Display::print_Time, 100);
 }
 
@@ -39,6 +39,8 @@ void Tasks::System::wakeUp_Prepare(void)
     MCU::Watchdog::Mode::interrupt();
     MCU::Watchdog::Interrupt_Enable();
     Setup_Power();
+    DS3231_RTC::Control::disable_A1_INT();
+    DS3231_RTC::Control::disable_A2_INT();
     DS3231_RTC::Control_Status::clear_Alarm_Events();
 
     OS.SetTask_(Tasks::System::periph_power_on, 10);

@@ -27,12 +27,7 @@ void setup() {
       Setup_DS3231();
     #endif //DS3231_RTC_HPP
 
-    //Watchdog setup for TaskManager
-    MCU::Watchdog::System_reset_disable();
-    MCU::Watchdog::Prescaler::set_2048();
-    MCU::Watchdog::Mode::interrupt();
-    MCU::Watchdog::Interrupt_Enable();
-
+    Setup_Watchdog();
     MCU::EXINT_::INT0_Mode::low_level();
     
   #endif //MCU_Mega328_HPP

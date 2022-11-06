@@ -9,5 +9,6 @@ void Setup_IO_Pins(void);
 void Setup_TWI(void);
 void Setup_Power(void);
 void Setup_Sleep(void);
+void Setup_Watchdog(void);
 
 #endif //FUNCTIONS_HPP
