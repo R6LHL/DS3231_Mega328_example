@@ -6,14 +6,21 @@
 
 #include "variables.hpp"
 
-void periph_power_on (void);
-void periph_power_off(void);
-
-    #ifdef DEBUG_TIME_SET
+namespace Tasks
+{
+    namespace System
+    {
+        void periph_power_on (void);
+        void periph_power_off(void);
+        void sleep(void);
+        void wakeUp_Prepare(void);
+    }
+    
+    namespace Display
+    {
         void print_Time(void);
         void print_Date(void);
-    #endif //DEBUG_TIME_SET
-
-void system_sleep(void);
+    }
+}
 
 #endif //TASKS_HPP

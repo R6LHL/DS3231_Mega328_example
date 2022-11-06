@@ -9,8 +9,9 @@
 
 #ifdef DEBUG_ON
     #define DEBUG_TIME_SET
-    //#define SLEEP_ENABLED
 #endif //DEBUG_ON
+
+#define SLEEP_ENABLED
 
 #include <avr/io.h>
 

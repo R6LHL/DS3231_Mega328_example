@@ -39,17 +39,12 @@ namespace MCU
 		// Sleep mode control register
 		struct SMCR_ : public RegisterBase<0x53> 
 		{
-			static const uint8_t b_SM2 = 3;
-			static const uint8_t b_SM1 = 2;
-			static const uint8_t b_SM0 = 1;
-			static const uint8_t b_SE = 0;
+			static bit_number b_SM2 = 3;
+			static bit_number b_SM1 = 2;
+			static bit_number b_SM0 = 1;
+			static bit_number b_SE = 0;
 		};
 				
-		 void Enable(void);
-		 void Disable(void);
-		 void Go(void);
-		 bool is_Sleep_Enabled(void);
-
 		namespace Mode
 		{
 			void Idle(void);
@@ -59,6 +54,11 @@ namespace MCU
 			void Standby(void);
 			void ExtendedStandby(void);
 		}
+
+		void Enable(void);
+		void Disable(void);
+		void Go(void);
+		bool is_Sleep_Enabled(void);
 		
 	} // end Sleep mode control register
 	
@@ -77,7 +77,14 @@ namespace MCU
 		// end Stack pointer register low
 		
 		// MCU control register
-		struct MCUCR_ : public RegisterBase<0x55>{};
+		struct MCUCR_ : public RegisterBase<0x55>
+		{
+			static bit_number b_BOD = 	6;
+			static bit_number b_BODSE = 5;
+			static bit_number b_PUD = 	4;
+			static bit_number b_IVSEL = 1;
+			static bit_number b_IVCE = 	0;
+		};
 		// end MCU control register
 		
 		// MCU status register - indicates which event is reset occured
@@ -87,7 +94,7 @@ namespace MCU
 		// 0x08 - if watchdog reset
 		struct MCUSR_ : public RegisterBase<0x54> 
 		{
-			static const uint8_t b_WDRF = 3;
+			static bit_number b_WDRF = 3;
 		};
 		// end MCU status register
 				
@@ -102,13 +109,13 @@ namespace MCU
 		//Power reduction register
 		struct PRR_ : public RegisterBase<0x64> 
 		{
-			static const uint8_t b_PRTWI0 = 7;
-			static const uint8_t b_PRTIM2 = 6;
-			static const uint8_t b_PRTIM0 = 5;
-			static const uint8_t b_PRTIM1 = 3;
-			static const uint8_t b_PRSPI0 = 2;
-			static const uint8_t b_PRUSART0 = 1;
-			static const uint8_t b_PRADC = 0;
+			static bit_number b_PRTWI0 = 7;
+			static bit_number b_PRTIM2 = 6;
+			static bit_number b_PRTIM0 = 5;
+			static bit_number b_PRTIM1 = 3;
+			static bit_number b_PRSPI0 = 2;
+			static bit_number b_PRUSART0 = 1;
+			static bit_number b_PRADC = 0;
 		};
 
 		//General TC control register
@@ -121,6 +128,7 @@ namespace MCU
 
 		void powerDown_All_Peripherials(void);
 		void powerUp_All_Peripherials(void);
+		void BrownOut_Disable(void);
 		
 	}// end MCU core control registers
 		

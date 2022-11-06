@@ -460,6 +460,7 @@ namespace DS3231_RTC
 
         void clear_Alarm1_Event(void);
         void clear_Alarm2_Event(void);
+        void clear_Alarm_Events(void);
 
         void set_config(uint8_t);
         uint8_t get_config(void);        
