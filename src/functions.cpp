@@ -1,6 +1,7 @@
 #include "functions.hpp"
 
 void Setup_DS3231(void)
+
 {
     DS3231_RTC::Control::disable_A1_INT();
     DS3231_RTC::Control::disable_A2_INT();
@@ -74,4 +75,9 @@ void Setup_Watchdog(void)
     MCU::Watchdog::Prescaler::set_2048();
     MCU::Watchdog::Mode::interrupt();
     MCU::Watchdog::Interrupt_Enable();
+}
+
+void Setup_USART(void)
+{
+    MCU::USART_::Set::BaudRate(16000000, 9600);
 }

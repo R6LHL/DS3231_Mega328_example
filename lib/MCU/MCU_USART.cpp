@@ -39,14 +39,14 @@ void MCU::USART_::TX_9bit(uint16_t value)
 	else UCSR0B_::ClearBit(0);
 }
 
-void MCU::USART_::RX_Complete_Interrupt_Enable(void){UCSR0B_::SetBit(7);}
-void MCU::USART_::RX_Complete_Interrupt_Disable(void){UCSR0B_::ClearBit(7);}
+void MCU::USART_::Interrupts::RX_Complete_Enable(void){UCSR0B_::SetBit(7);}
+void MCU::USART_::Interrupts::RX_Complete_Disable(void){UCSR0B_::ClearBit(7);}
 		
-void MCU::USART_::TX_Complete_Interrupt_Enable(void){UCSR0B_::SetBit(6);}
-void MCU::USART_::TX_Complete_Interrupt_Disable(void){UCSR0B_::ClearBit(6);}
+void MCU::USART_::Interrupts::TX_Complete_Enable(void){UCSR0B_::SetBit(6);}
+void MCU::USART_::Interrupts::TX_Complete_Disable(void){UCSR0B_::ClearBit(6);}
 		
-void MCU::USART_::Data_reg_Empty_Interrupt_Enable(void){UCSR0B_::SetBit(5);}
-void MCU::USART_::Data_reg_Empty_Interrupt_Disable(void){UCSR0B_::ClearBit(5);}
+void MCU::USART_::Interrupts::Data_reg_Empty_Enable(void){UCSR0B_::SetBit(5);}
+void MCU::USART_::Interrupts::Data_reg_Empty_Disable(void){UCSR0B_::ClearBit(5);}
 		
 void MCU::USART_::RX_Enable(void){UCSR0B_::SetBit(4);}
 void MCU::USART_::RX_Disable(void){UCSR0B_::ClearBit(4);}
@@ -149,6 +149,13 @@ void MCU::USART_::Set::Mode::MasterSPI(void)
 	UCSR0C_::Set(config_byte);
 }
 
+uint8_t MCU::USART_::Set::Mode::get(void)
+{
+	uint8_t byte_ = UCSR0C_::Get();
+	byte_ &= 0b11000000;
+	return byte_;
+}
+
 void MCU::USART_::Set::Parity_control::disable(void)
 {
 	uint8_t config_byte = UCSR0C_::Get();
@@ -169,6 +176,36 @@ void MCU::USART_::Set::Parity_control::odd(void)
 	uint8_t config_byte = UCSR0C_::Get();
 	config_byte |= ((1<<5)|(1<<4));
 	UCSR0C_::Set(config_byte);
+}
+
+void MCU::USART_::Set::BaudRate(uint32_t f_cpu, uint16_t baud)
+{
+	uint16_t ubrr;
+
+	switch (Mode::get())
+	{
+	case 0b00000000:
+		if(MCU::USART_::UCSR0A_::GetBit(1) == 0)
+		{
+			ubrr = (f_cpu / 16 / baud) - 1;
+		}
+		else ubrr = (f_cpu / 8 / baud) - 1;
+		break;
+	
+	case 0b01000000:
+		ubrr = (f_cpu / 2 / baud) - 1;
+		break;
+	
+	default:
+		break;
+	}
+	
+	uint8_t ubrrh = ubrr >> 8;
+	uint8_t ubrrl = ubrr;
+
+	MCU::USART_::UBRR0H_::Set(ubrrh);
+	MCU::USART_::UBRR0L_::Set(ubrrl);
+	
 }
 
 void MCU::USART_::powerUp(void){MCU::Core::PRR_::ClearBit(MCU::Core::PRR_::b_PRUSART0);}	

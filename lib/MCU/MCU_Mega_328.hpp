@@ -515,27 +515,31 @@ namespace MCU
 		void TX(uint8_t value);
 		void TX_9bit(uint16_t value);
 
-		void RX_Complete_Interrupt_Enable(void);
-		void RX_Complete_Interrupt_Disable(void);
+		namespace Interrupts
+		{
+			void RX_Complete_Enable(void);
+			void RX_Complete_Disable(void);
 		
-		void TX_Complete_Interrupt_Enable(void);
-		void TX_Complete_Interrupt_Disable(void);
+			void TX_Complete_Enable(void);
+			void TX_Complete_Disable(void);
 		
-		void Data_reg_Empty_Interrupt_Enable(void);
-		void Data_reg_Empty_Interrupt_Disable(void);
-		
+			void Data_reg_Empty_Enable(void);
+			void Data_reg_Empty_Disable(void);
+		}
+
 		void RX_Enable(void);
 		void RX_Disable(void);
 		
 		void TX_Enable(void);
 		void TX_Disable(void);
 		//end USART control and status register 0B
-		
+
 		//USART control and status register 0C
 		struct UCSR0C_ : public RegisterBase<0xc2> {};
 		
 		namespace Set
 		{
+			 void BaudRate(uint32_t fosc, uint16_t baudrate);
 			 void BuadRate_div_16(void);
 			 void BuadRate_div_8(void);
 			 void Multiprocessor_Mode(void);
@@ -561,6 +565,7 @@ namespace MCU
 				void Asynchronous(void);
 				void Synchronous(void);
 				void MasterSPI(void);
+				uint8_t get(void);
 			}
 			
 			namespace Parity_control

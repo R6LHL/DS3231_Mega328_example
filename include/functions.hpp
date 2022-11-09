@@ -10,5 +10,6 @@ void Setup_TWI(void);
 void Setup_Power(void);
 void Setup_Sleep(void);
 void Setup_Watchdog(void);
+void Setup_USART(void);
 
 #endif //FUNCTIONS_HPP

@@ -19,6 +19,8 @@
 #include <MCU_Mega_328.hpp>
 #endif //MEGA328
 
+const uint32_t FOSC = 16000000;
+
 //Task Manager config
 const uint8_t task_queue_size = 5;
 //const uint8_t os_min_timeslot_ms = 16;
@@ -40,7 +42,8 @@ const uint8_t led_on_period_ts = 20;
 const uint8_t led_off_period_ts = 20;
 const uint8_t time_print_period_ts = 62;
 
-//Настройки буферов
-//const uint8_t twi_buffer_size = 8;
+//UART Baudrate
+const uint16_t UART_Baudrate = 9600;
+constexpr uint8_t UBRR_value = FOSC/16/UART_Baudrate-1;
 
 #endif //CONFIG_HPP
