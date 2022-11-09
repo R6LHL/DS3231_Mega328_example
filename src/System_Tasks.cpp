@@ -12,6 +12,8 @@ void Tasks::System::periph_power_on(void)
 void Tasks::System::periph_power_off(void)
 {
     Serial.println(F("Sleeping..."));
+    Serial.println();
+    
     digitalWrite(PWR_CTRL_PIN, LOW);
 
     OS.SetTask_(sleep, do_now);

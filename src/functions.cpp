@@ -18,6 +18,7 @@ void Setup_DS3231(void)
 
     DS3231_RTC::Minutes::set_Value(0);
     DS3231_RTC::Seconds::set_Value(0);
+    #endif //DEBUG_TIME_SET
 
     DS3231_RTC::Alarm1Day_Date::set_a1m4();
     DS3231_RTC::Alarm1Hours::set_a1m3();
@@ -29,7 +30,7 @@ void Setup_DS3231(void)
     DS3231_RTC::Alarm2Day_Date::clear_a2m4();
     DS3231_RTC::Alarm2Hours::clear_a2m3();
     DS3231_RTC::Alarm2Minutes::clear_a2m2();
-    #endif //DEBUG_TIME_SET
+    
 }
 
 void Protective_startup_delay(void)
